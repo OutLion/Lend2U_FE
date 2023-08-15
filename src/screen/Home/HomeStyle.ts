@@ -176,6 +176,10 @@ export const ServiceIntro = styled.div`
   border: 1px solid #dfdfdf;
   background: #fff;
   margin-left: 350px;
+  img {
+    margin-left: 5px;
+    margin-top: 2px;
+  }
 `;
 
 export const HomePage = styled.div`
@@ -382,7 +386,7 @@ export const CheckButton = styled.button`
   border: 1px solid #a6c8ff;
   border-radius: 15px;
   background: #428aff;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgba(255, 255, 255, 1);
   font-size: 28px;
   font-style: normal;
   font-weight: 500;
