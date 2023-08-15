@@ -13,6 +13,7 @@ export const CardContainer = styled.div`
   background: #fff;
   box-shadow: 0px 4px 30px 3px rgba(114, 48, 255, 0.15);
   margin-right: 30px;
+  transition: height 0.3s ease;
 `;
 
 export const LogoImage = styled.img`
