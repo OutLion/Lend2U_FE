@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import toggleIcon_down from '../../assets/toggle_down.svg';
 import toggleIcon_up from '../../assets/toggle_up.svg';
 import {
@@ -16,8 +16,23 @@ import img from '../../assets/tablet.svg';
 
 function TabletCard() {
   const [showSpec, setShowSpec] = useState(false);
+  const cardRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (cardRef.current) {
+      const cardHeight = 200 + calculateExpandedOptionsHeight();
+      cardRef.current.style.height = `${cardHeight}px`;
+    }
+  }, [showSpec]);
+
+  const calculateExpandedOptionsHeight = () => {
+    let height = 0;
+    if (showSpec) height += 510;
+    return height;
+  };
+
   return (
-    <CardContainer>
+    <CardContainer ref={cardRef}>
       <UpWrapper>
         <LogoImage src={img} alt='로고 이미지' />
         <CardInfo>

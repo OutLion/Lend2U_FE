@@ -36,10 +36,13 @@ import {
   Time
 } from './HomeStyle';
 import { Element } from 'react-scroll';
+import { Link } from 'react-router-dom';
 import Footer from '../../component/Footer';
 import '../../App.css';
 import LaptopCard from '../../component/Spec/LaptopCard';
 import TabletCard from '../../component/Spec/TabletCard';
+import intro from '../../assets/service_intro.svg';
+import img from '../../assets/tablet.svg';
 function Home() {
   const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
   const [email, setEmail] = useState('');
@@ -49,28 +52,31 @@ function Home() {
   const [countdown, setCountdown] = useState<number>(300);
   const [isVerificationCompleted, setIsVerificationCompleted] = useState(false);
   const [isEmailEmpty, setIsEmailEmpty] = useState(false);
+  const [isCodeInvalid, setIsCodeInvalid] = useState(false);
+  const [verificationButtonText, setVerificationButtonText] = useState('확인');
 
   const handleEmailVerification = () => {
     if (email === '') {
-      setIsEmailEmpty(true); // Set the email empty state to true
+      setIsEmailEmpty(true);
       return;
     }
-    // Implement email verification logic here
-    // After successful verification:
     setIsEmailVerified(true);
-    setIsVerificationCompleted(false); // Reset verification completion
-    setIsEmailEmpty(false); // Reset the email empty state
+    setIsVerificationCompleted(false);
+    setIsCodeInvalid(false);
+    setIsEmailEmpty(false);
+    // 여기 email로 코드 발송하는 로직 추가
   };
 
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
-    if (countdown > 0 && isEmailVerified) {
+
+    if (countdown > 0 && isEmailVerified && !isVerificationCompleted) {
       interval = setInterval(() => {
         setCountdown((prevCountdown) => prevCountdown - 1);
       }, 1000);
     }
 
-    if (countdown === 0) {
+    if (countdown === 0 || isVerificationCompleted) {
       clearInterval(interval);
     }
 
@@ -79,20 +85,25 @@ function Home() {
         clearInterval(interval);
       }
     };
-  }, [countdown, isEmailVerified]);
-
-  // ... Rest of the code ...
+  }, [countdown, isEmailVerified, isVerificationCompleted]);
 
   const handleResendEmail = () => {
-    // Implement logic to resend the verification email
+    // 재발송하는 로직 추가
     setVerificationCountdown(300); // Reset countdown
     setCountdown(300); // Reset the countdown timer to 5 minutes
   };
 
   const handleVerify = () => {
-    // Implement logic to verify the entered verification code
+    // 불러와서 검증하는 로직 추가
     if (verificationCode === '123456') {
       setIsVerificationCompleted(true);
+      setIsCodeInvalid(false);
+      setVerificationButtonText('인증완료');
+    } else {
+      setIsVerificationCompleted(false); // 코드가 일치하지 않을 때 인증 완료 상태 해제
+      setVerificationCode(''); // 코드 입력 필드 초기화
+      setIsCodeInvalid(true);
+      setVerificationButtonText('재입력');
     }
   };
   function formatTime(seconds: number): string {
@@ -103,13 +114,20 @@ function Home() {
       .padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
     return formattedTime;
   }
+  const adminEmails = ['admin@example.com', 'anotheradmin@example.com']; // Add your admin email addresses here
+
+  function isEmailAdmin(email: string): boolean {
+    return adminEmails.includes(email);
+  }
   return (
     <div>
       <Header />
       <HomePage>
         <Element name='service-intro'>
           <Section>
-            <ServiceIntro></ServiceIntro>
+            <ServiceIntro>
+              <img src={intro} />
+            </ServiceIntro>
             <Notice>
               <NoticeTitle>주의사항</NoticeTitle>
               <NoticeDetail>
@@ -121,8 +139,8 @@ function Home() {
                 기기 재구매 비용과 법적 조치가 이어질 수 있습니다.
               </NoticeDetail>
               <NoticeDetail>
-                전자기기의 사양은 최소사양만 조회 가능하며 랜덤으로 제공되고,
-                대여기간은 2주입니다.
+                전자기기의 사양은 최소사양만 조회 가능하며 사유에 맞게 랜덤으로
+                제공되고, 대여기간은 2주입니다.
               </NoticeDetail>
             </Notice>
             <DownWrapper>
@@ -137,9 +155,11 @@ function Home() {
                   onChange={() => setIsCheckboxChecked(!isCheckboxChecked)}
                 />
               </Agree>
-              <ApplyButton disabled={!isCheckboxChecked}>
-                서비스 신청하기
-              </ApplyButton>
+              <Link to={'/application'}>
+                <ApplyButton disabled={!isCheckboxChecked}>
+                  서비스 신청하기
+                </ApplyButton>
+              </Link>
             </DownWrapper>
           </Section>
         </Element>
@@ -200,10 +220,11 @@ function Home() {
                           placeholder='인증번호'
                           value={verificationCode}
                           onChange={(e) => setVerificationCode(e.target.value)}
+                          style={{ borderColor: isCodeInvalid ? 'red' : '' }} // border 색 추가
                         />
                         <Time>{formatTime(countdown)}</Time>
                         <IsCorrectbutton onClick={handleVerify}>
-                          {isVerificationCompleted ? '인증완료' : '확인'}
+                          {verificationButtonText}
                         </IsCorrectbutton>
                         <Resendbutton onClick={handleResendEmail}>
                           재전송
@@ -213,8 +234,7 @@ function Home() {
                       <>
                         <EmailCheckButton
                           onClick={handleEmailVerification}
-                          disabled={isEmailVerified} // Disable if email is already verified
-                        >
+                          disabled={isEmailVerified}>
                           인증하기
                         </EmailCheckButton>
                       </>
@@ -222,9 +242,21 @@ function Home() {
                   </CheckWrapper>
                 </Content>
               </NoticeApply>
-              <CheckButton disabled={!isVerificationCompleted}>
-                신청내역 조회
-              </CheckButton>
+              <div>
+                {isVerificationCompleted && isEmailAdmin(email) ? (
+                  <Link to={'/admin'}>
+                    <CheckButton disabled={!isVerificationCompleted}>
+                      관리자 페이지
+                    </CheckButton>
+                  </Link>
+                ) : (
+                  <Link to={`/applicationhistory/${email}`}>
+                    <CheckButton disabled={!isVerificationCompleted}>
+                      신청내역 조회
+                    </CheckButton>
+                  </Link>
+                )}
+              </div>
             </SecondWrapper>
           </Section>
         </Element>

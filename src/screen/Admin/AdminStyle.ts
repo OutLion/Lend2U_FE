@@ -221,10 +221,10 @@ export const BorderLine = styled.hr`
 `;
 
 export const Title = styled.div`
-  margin-top: 30px;
-  font-size: 22px;
+  margin-top: 100px;
+  font-size: 28px;
   margin-bottom: 15px;
-  margin-left: 360px;
+  margin-left: 390px;
 `;
 
 export const Notice = styled.div`
