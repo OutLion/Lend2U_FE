@@ -60,10 +60,10 @@ function Admin() {
       depositorName: '홍길동',
       applicationStatus: '접수 승인',
       refuseReason: '',
-      waybillNumber: '',
-      courier: '',
-      bank: '',
-      deposit: ''
+      waybillNumber: '123456789',
+      courier: '00택배',
+      bank: '00은행',
+      deposit: '333-1234-45678'
     },
     {
       apply_id: '4',

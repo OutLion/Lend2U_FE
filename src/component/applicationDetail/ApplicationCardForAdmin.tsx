@@ -6,12 +6,13 @@ import {
   Title,
   SubTitle,
   BorderLine,
-  StatusButton,
   RefuseButton,
   UnderWrapper,
   AdminCardContainer
 } from './CardStyle';
 import AdminRefuseModal from './AdminRefuseModal';
+import ControlStatusModal from './ControlStatusModal';
+import InfoModal from './InfoModal';
 
 const ApplicationCardForAdmin = ({
   apply_id,
@@ -45,18 +46,18 @@ const ApplicationCardForAdmin = ({
     setIsRejectModalOpen(false);
   };
   const openControlModal = () => {
-    setIsRejectModalOpen(true);
+    setControlModalOpen(true);
   };
 
   const closeControlModal = () => {
-    setIsRejectModalOpen(false);
+    setControlModalOpen(false);
   };
   const openInfoModal = () => {
-    setIsRejectModalOpen(true);
+    setRetrieveInfoModalOpen(true);
   };
 
   const closeInfoModal = () => {
-    setIsRejectModalOpen(false);
+    setRetrieveInfoModalOpen(false);
   };
   const handleRejectSubmit = () => {
     // 모달 닫기
@@ -103,7 +104,9 @@ const ApplicationCardForAdmin = ({
         </CardInfo>
       </UpWrapper>
       <UnderWrapper>
-        <RefuseButton disabled={isRejected}>내역 상태 변경</RefuseButton>
+        <RefuseButton disabled={isRejected} onClick={openControlModal}>
+          내역 상태 변경
+        </RefuseButton>
         <RefuseButton
           disabled={isRejected}
           onClick={handleCertificationDownload}>
@@ -115,7 +118,9 @@ const ApplicationCardForAdmin = ({
           style={{ background: isRejected ? '#FFA5A5' : '' }}>
           {isRejected ? '반려 확정' : '접수 내역 반려'}
         </RefuseButton>
-        <RefuseButton disabled={isRejected}>반환 정보 조회</RefuseButton>
+        <RefuseButton disabled={isRejected} onClick={openInfoModal}>
+          반환 정보 조회
+        </RefuseButton>
       </UnderWrapper>
       {isRejectModalOpen && (
         <AdminRefuseModal
@@ -123,6 +128,24 @@ const ApplicationCardForAdmin = ({
           isOpen={isRejectModalOpen}
           onClose={closeRejectModal}
           onConfirm={handleRejectSubmit}
+        />
+      )}
+      {controlModalOpen && (
+        <ControlStatusModal
+          apply_id={apply_id}
+          applicationStatus={applicationStatus}
+          isOpen={controlModalOpen}
+          onClose={closeControlModal}
+        />
+      )}
+      {retrieveInfoModalOpen && (
+        <InfoModal
+          deposit={deposit}
+          courier={courier}
+          bank={bank}
+          waybillNumber={waybillNumber}
+          isOpen={retrieveInfoModalOpen}
+          onClose={closeInfoModal}
         />
       )}
     </AdminCardContainer>

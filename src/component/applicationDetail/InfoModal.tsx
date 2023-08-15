@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import {
+  ModalContainer,
+  ModalContent,
+  BasicButton,
+  BasicInput,
+  BasicLabel,
+  Title,
+  ModalOverlay,
+  Border,
+  SpecialWrapper
+} from './ModalStyle';
 
 interface AdminRefuseModalProps {
   isOpen: boolean;
@@ -19,16 +29,21 @@ const InfoModal: React.FC<AdminRefuseModalProps> = ({
   waybillNumber
 }) => {
   return (
-    <div className={`modal ${isOpen ? 'open' : ''}`}>
-      <div className='modal-content'>
-        <h2>내역 상태 반려</h2>
-        <label>택배사: {deposit}</label>
-        <label>운송장 번호: {courier}</label>
-        <label>은행: {bank}</label>
-        <label>보증금 계좌: {waybillNumber}</label>
-        <button onClick={onClose}>닫기</button>
-      </div>
-    </div>
+    <ModalContainer>
+      <ModalOverlay>
+        <ModalContent>
+          <Title>반환 정보 조회</Title>
+          <Border></Border>
+          <BasicLabel>택배사: {courier}</BasicLabel>
+          <BasicLabel>운송장 번호: {waybillNumber}</BasicLabel>
+          <BasicLabel>은행: {bank}</BasicLabel>
+          <BasicLabel>보증금 계좌: {deposit}</BasicLabel>
+          <SpecialWrapper>
+            <BasicButton onClick={onClose}>닫기</BasicButton>
+          </SpecialWrapper>
+        </ModalContent>
+      </ModalOverlay>
+    </ModalContainer>
   );
 };
 
