@@ -45,7 +45,6 @@ function Application() {
       console.error('Daum Postcode API not loaded.');
     }
   };
-
   const handleDeviceTypeChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -152,10 +151,9 @@ function Application() {
         </Row>
 
         <FormGroup>
-          <Span>기초수급자 인증서 업로드</Span>
+          <Span>기초수급자 증명서 업로드</Span>
           <Input type='file' accept='.pdf,.jpg,.png' />
         </FormGroup>
-
         <FormGroup>
           <Span>배송 주소</Span>
           <Input
@@ -173,9 +171,8 @@ function Application() {
             placeholder='상세 주소'
           />
         </FormGroup>
-
         <Span1>
-          보증금 7만원 + 배송비(왕복배송비+제품관리비용)1만원 = 8만원
+          보증금 7만원 + 배송비(왕복배송비+제품관리비용) 1만원 = 8만원
         </Span1>
         <FormGroup>
           <Input
