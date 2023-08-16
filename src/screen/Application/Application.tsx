@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
-
+import { Title } from './ApplicationStyle';
 declare global {
   interface Window {
     daum: any; // Daum 우편번호 서비스 API 객체의 타입 정의
@@ -340,21 +340,6 @@ const Container = styled.div`
   border-radius: 10px;
   margin: 0 auto;
   overflow: hidden;
-`;
-
-const Title = styled.h2`
-  /* 신청하기 타이틀 스타일 설정 */
-  width: 218.2px;
-  height: 45px;
-  font-family: 'Gmarket Sans TTF', sans-serif;
-  font-size: 30px;
-  line-height: 45px;
-  letter-spacing: -2px;
-  color: #000000;
-  margin-bottom: 15px;
-  text-align: left;
-  margin-top: 20px;
-  margin-left: 70px;
 `;
 
 const Form = styled.form`
