@@ -73,13 +73,13 @@ export const StatusButton = styled.button`
   margin-top: 12px;
   border: 1px solid #a6c8ff;
   border-radius: 15px;
-  background: #428aff;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 15px;
+  background: #83b2ff;
+  color: #222;
+  font-size: 17px;
   font-style: normal;
   font-weight: 500;
   line-height: 48px;
-  letter-spacing: -2px;
+  letter-spacing: -1px;
   cursor: pointer;
 
   &:hover {
@@ -88,12 +88,8 @@ export const StatusButton = styled.button`
 
   &:disabled {
     border: 1px solid #a6c8ff;
-    background: #8fbaff;
+    background: #e1e4fb;
     cursor: not-allowed;
-  }
-
-  &:disabled:hover {
-    background-color: #8fbaff;
   }
 `;
 export const RefuseButton = styled.button`

@@ -1,4 +1,4 @@
-import React, { useState , useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 
 declare global {
@@ -22,7 +22,8 @@ function Application() {
   useEffect(() => {
     // Daum 우편번호 서비스 스크립트 동적 로드
     const script = document.createElement('script');
-    script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+    script.src =
+      '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
     script.async = true;
     document.body.appendChild(script);
 
@@ -38,13 +39,12 @@ function Application() {
       new window.daum.Postcode({
         oncomplete: (data: any) => {
           setAddress(data.address);
-        },
+        }
       }).open();
     } else {
-      console.error("Daum Postcode API not loaded.");
+      console.error('Daum Postcode API not loaded.');
     }
   };
-  
   const handleDeviceTypeChange = (
     event: React.ChangeEvent<HTMLSelectElement>
   ) => {
@@ -127,8 +127,7 @@ function Application() {
             <Label1>신청 사유</Label1>
             <Select
               value={selectedReason}
-              onChange={handleSelectedReasonChange}
-            >
+              onChange={handleSelectedReasonChange}>
               <option value='coding'>코딩</option>
               <option value='work'>사무작업</option>
               <option value='study'>학업용</option>
@@ -152,12 +151,11 @@ function Application() {
         </Row>
 
         <FormGroup>
-        <Span>기초수급자 인증서 업로드</Span>
+          <Span>기초수급자 증명서 업로드</Span>
           <Input type='file' accept='.pdf,.jpg,.png' />
         </FormGroup>
-    
         <FormGroup>
-        <Span>배송 주소</Span>
+          <Span>배송 주소</Span>
           <Input
             type='text'
             value={address}
@@ -173,8 +171,9 @@ function Application() {
             placeholder='상세 주소'
           />
         </FormGroup>
-
-        <Span1>보증금 7만원 + 배송비(왕복배송비+제품관리비용)1만원 = 8만원</Span1>
+        <Span1>
+          보증금 7만원 + 배송비(왕복배송비+제품관리비용) 1만원 = 8만원
+        </Span1>
         <FormGroup>
           <Input
             type='text'
@@ -191,19 +190,9 @@ function Application() {
               <h4>개인정보 수집 동의</h4>
               <p>[개인정보 수집 동의서]</p>
               <p>
-                [수집하는 개인정보 항목]
-                <br />
-                1. 성명
-                <br />
-                2. 주소
-                <br />
-                3. 연락처 (전화번호, 이메일)
-                <br />
-                4. 기초생활수급자 증명서
-                <br />
-                5. 대여기록
-                <br />
-                6. 결제 정보 (계좌번호)
+                [수집하는 개인정보 항목] 1. 성명 2. 주소 3. 연락처 (전화번호,
+                이메일) 4. 기초생활수급자 증명서 5. 대여기록 6. 결제 정보
+                (계좌번호)
               </p>
               <p>
                 [개인정보의 수집 및 이용 목적]
@@ -255,17 +244,16 @@ function Application() {
 
 export default Application;
 
-
-const H5=styled.h5`
-/*입금계좌 안내문구*/
-font-size: 13px;
-color: #333;
-white-space: nowrap; /* 넘치는 텍스트 줄 바꿈 방지 */
-margin: 18px;
+const H5 = styled.h5`
+  /*입금계좌 안내문구*/
+  font-size: 13px;
+  color: #333;
+  white-space: nowrap; /* 넘치는 텍스트 줄 바꿈 방지 */
+  margin: 18px;
 `;
 
-const Button=styled.button`
-/*검색, 재전송 등 버튼 스타일*/
+const Button = styled.button`
+  /*검색, 재전송 등 버튼 스타일*/
   padding: 8px;
   margin: 10px;
   border: 1px solid #ccc;
@@ -275,7 +263,7 @@ const Button=styled.button`
 `;
 
 const Span = styled.span`
-/*기초수급자 인증서 업로드 및 배송주소 스타일*/
+  /*기초수급자 인증서 업로드 및 배송주소 스타일*/
   font-size: 16px;
   font-weight: bold;
   color: #333;
@@ -283,11 +271,11 @@ const Span = styled.span`
   white-space: nowrap;
   width: 200px;
   margin-bottom: 7px;
-  margin-top:14px;
+  margin-top: 14px;
 `;
 
 const Span1 = styled.span`
-/*입금 안내 문구*/
+  /*입금 안내 문구*/
   font-size: 16px;
   font-weight: bold;
   color: #333;
@@ -295,12 +283,12 @@ const Span1 = styled.span`
   white-space: nowrap;
   width: 100%;
   margin-bottom: 5px;
-  margin-top:10px;
-  margin-left:18px;
+  margin-top: 10px;
+  margin-left: 18px;
 `;
 
 const Row = styled.div`
-/* 한줄에 배열되도록 컴포넌트 묶기*/
+  /* 한줄에 배열되도록 컴포넌트 묶기*/
   display: flex;
   align-items: center;
   justify-content: center;
@@ -308,7 +296,7 @@ const Row = styled.div`
 `;
 
 const BorderLine = styled.hr`
-/*borderline 스타일 설정*/
+  /*borderline 스타일 설정*/
   stroke-width: 2px;
   width: 1169px;
   flex-shrink: 0;
@@ -346,7 +334,6 @@ const Container = styled.div`
     #f1f3ff 1.03%,
     rgba(127, 138, 242, 0) 100%
   );
-  border: 1px solid #ccc;
   border-radius: 10px;
   margin: 0 auto;
   overflow: hidden;
@@ -396,7 +383,7 @@ const Label = styled.div`
   font-weight: bold;
   display: inline-block;
   width: 115px;
-  margin-top:15px;
+  margin-top: 15px;
 `;
 
 const Label1 = styled.div`
@@ -404,9 +391,8 @@ const Label1 = styled.div`
   font-weight: bold;
   display: inline-block;
   width: 120px;
-  margin-top:10px;
+  margin-top: 10px;
 `;
-
 
 const Input = styled.input`
   /* 입력 필드 스타일 설정 */
@@ -461,7 +447,7 @@ const SubmitButton = styled.button`
   border-radius: 14px;
   font-size: 15px;
   font-weight: bold;
-  color: #FFFFFF;
+  color: #ffffff;
   margin-top: 11px;
 
   cursor: pointer;

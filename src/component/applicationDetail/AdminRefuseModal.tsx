@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import {
+  ModalContainer,
+  ModalContent,
+  BasicButton,
+  BasicInput,
+  BasicLabel,
+  Title,
+  ModalOverlay,
+  ButtonWrapper,
+  Border
+} from './ModalStyle';
 
 interface AdminRefuseModalProps {
   apply_id: string;
@@ -37,20 +48,24 @@ const AdminRefuseModal: React.FC<AdminRefuseModalProps> = ({
   };
 
   return (
-    <div className={`modal ${isOpen ? 'open' : ''}`}>
-      <div className='modal-content'>
-        <h2>내역 상태 반려</h2>
-        <label htmlFor='rejectReason'>거절 사유:</label>
-        <input
-          type='text'
-          id='rejectReason'
-          value={rejectReason}
-          onChange={(e) => setRejectReason(e.target.value)}
-        />
-        <button onClick={handleRejectSubmit}>제출</button>
-        <button onClick={onClose}>취소</button>
-      </div>
-    </div>
+    <ModalContainer>
+      <ModalOverlay>
+        <ModalContent>
+          <Title>신청내역 반려</Title>
+          <Border></Border>
+          <BasicInput
+            id='rejectReason'
+            value={rejectReason}
+            placeholder={'거절 사유를 작성해주세요.'}
+            onChange={(e) => setRejectReason(e.target.value)}
+          />
+          <ButtonWrapper>
+            <BasicButton onClick={handleRejectSubmit}>제출</BasicButton>
+            <BasicButton onClick={onClose}>취소</BasicButton>
+          </ButtonWrapper>
+        </ModalContent>
+      </ModalOverlay>
+    </ModalContainer>
   );
 };
 

@@ -1,23 +1,37 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import {
+  ModalContainer,
+  ModalContent,
+  BasicButton,
+  BasicInput,
+  BasicLabel,
+  Title,
+  ModalOverlay,
+  Border,
+  ButtonWrapper
+} from './ModalStyle';
+import SelectStatus from './SelectStatus';
 
 interface AdminRefuseModalProps {
   apply_id: string;
   applicationStatus: string;
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: (rejectReason: string) => void;
 }
 
 const ControlStatusModal: React.FC<AdminRefuseModalProps> = ({
   apply_id,
   applicationStatus,
   isOpen,
-  onClose,
-  onConfirm
+  onClose
 }) => {
   const [status, setStatus] = useState('');
-
+  const handleStatusChange = (newStatus: string | null) => {
+    if (newStatus !== null) {
+      setStatus(newStatus);
+    }
+  };
   const handleRejectSubmit = () => {
     if (status) {
       axios
@@ -25,7 +39,6 @@ const ControlStatusModal: React.FC<AdminRefuseModalProps> = ({
           applicationStatus: status
         })
         .then((response) => {
-          onConfirm(status);
           onClose();
         })
         .catch((error) => {
@@ -33,25 +46,27 @@ const ControlStatusModal: React.FC<AdminRefuseModalProps> = ({
           console.error('Error updating application status:', error);
         });
     }
-    console.log(status);
+    console.log(apply_id, status);
     onClose();
   };
 
   return (
-    <div className={`modal ${isOpen ? 'open' : ''}`}>
-      <div className='modal-content'>
-        <h2>내역 상태 반려</h2>
-        <label htmlFor='rejectReason'>변경 상태:</label>
-        <input
-          type='text'
-          id='rejectReason'
-          value={applicationStatus}
-          onChange={(e) => setStatus(e.target.value)}
-        />
-        <button onClick={handleRejectSubmit}>저장</button>
-        <button onClick={onClose}>취소</button>
-      </div>
-    </div>
+    <ModalContainer>
+      <ModalOverlay>
+        <ModalContent>
+          <Title>내역상태 변경</Title>
+          <Border></Border>
+          <SelectStatus
+            status={applicationStatus}
+            onChange={handleStatusChange}
+          />
+          <ButtonWrapper>
+            <BasicButton onClick={handleRejectSubmit}>저장</BasicButton>
+            <BasicButton onClick={onClose}>취소</BasicButton>
+          </ButtonWrapper>
+        </ModalContent>
+      </ModalOverlay>
+    </ModalContainer>
   );
 };
 
