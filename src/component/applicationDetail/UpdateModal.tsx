@@ -11,7 +11,8 @@ import {
   Border,
   ButtonWrapper
 } from './ModalStyle';
-import SelectStatus from './SelectStatus';
+import SelectDevice2 from './SelectDevice2';
+import SelectReason2 from './SelectReason2';
 
 interface AdminRefuseModalProps {
   apply_id: string;
@@ -55,7 +56,16 @@ const UpdateModal: React.FC<AdminRefuseModalProps> = ({
   const [updatedRoadAddress, setUpdatedRoadAddress] = useState(roadAddress);
   const [updatedDepositorName, setUpdatedDepositorName] =
     useState(depositorName);
-
+  const handleDeviceChange = (newCourier: string | null) => {
+    if (newCourier !== null) {
+      setUpdatedDevice(newCourier);
+    }
+  };
+  const handleReasonChange = (newBank: string | null) => {
+    if (newBank !== null) {
+      setUpdatedApplicationReason(newBank);
+    }
+  };
   const handleSubmit = () => {
     axios
       .put(`https://example-api.com/applications/${apply_id}`, {
@@ -107,15 +117,9 @@ const UpdateModal: React.FC<AdminRefuseModalProps> = ({
             onChange={(e) => setUpdatedPhoneNum(e.target.value)}
           />
           <BasicLabel>신청 기기</BasicLabel>
-          <BasicInput2
-            value={updatedDevice}
-            onChange={(e) => setUpdatedDevice(e.target.value)}
-          />
+          <SelectDevice2 onChange={handleDeviceChange} />
           <BasicLabel>신청 사유</BasicLabel>
-          <BasicInput2
-            value={updatedApplicationReason}
-            onChange={(e) => setUpdatedApplicationReason(e.target.value)}
-          />
+          <SelectReason2 onChange={handleReasonChange} />
           <BasicLabel>이메일</BasicLabel>
           <BasicInput2
             value={updatedEmail}

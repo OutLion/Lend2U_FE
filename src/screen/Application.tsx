@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import SelectReason from '../component/applicationDetail/SelectReason';
+import SelectDevice from '../component/applicationDetail/SelectDevice';
+import StyledFileInput from '../component/applicationDetail/StyledFileInput';
+import axios from 'axios';
 
 declare global {
   interface Window {
@@ -12,13 +16,21 @@ function Application() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [selectedDevice, setSelectedDevice] = useState('');
   const [selectedReason, setSelectedReason] = useState('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [email, setEmail] = useState('');
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
   const [verificationCode, setVerificationCode] = useState('');
+  const [verificationCountdown, setVerificationCountdown] = useState(300);
+  const [countdown, setCountdown] = useState<number>(300);
+  const [isVerificationCompleted, setIsVerificationCompleted] = useState(false);
+  const [isEmailEmpty, setIsEmailEmpty] = useState(false);
+  const [isCodeInvalid, setIsCodeInvalid] = useState(false);
+  const [verificationButtonText, setVerificationButtonText] = useState('확인');
   const [address, setAddress] = useState('');
   const [detailAddress, setDetailAddress] = useState('');
-  const [deposit, setDeposit] = useState('');
+  const [depositorName, setDepositorName] = useState('');
   const [agreementChecked, setAgreementChecked] = useState(false);
-
+  const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
   useEffect(() => {
     // Daum 우편번호 서비스 스크립트 동적 로드
     const script = document.createElement('script');
@@ -33,7 +45,8 @@ function Application() {
     };
   }, []);
 
-  const handleSearchAddress = () => {
+  const handleSearchAddress = (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
     //주소 검색 로직
     if (window.daum && window.daum.Postcode) {
       new window.daum.Postcode({
@@ -45,35 +58,80 @@ function Application() {
       console.error('Daum Postcode API not loaded.');
     }
   };
-  const handleDeviceTypeChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setSelectedDevice(event.target.value);
+  const handleDeviceTypeChange = (newCourier: string | null) => {
+    if (newCourier !== null) {
+      setSelectedDevice(newCourier);
+    }
   };
-
-  const handleSelectedReasonChange = (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    setSelectedReason(event.target.value);
+  const handleSelectedReasonChange = (newCourier: string | null) => {
+    if (newCourier !== null) {
+      setSelectedReason(newCourier);
+    }
   };
 
   const handleEmailChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setEmail(event.target.value);
   };
 
-  const handleVerificationCodeChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setVerificationCode(event.target.value);
+  const handleEmailVerification = () => {
+    if (email === '') {
+      setIsEmailEmpty(true);
+      return;
+    }
+    setIsEmailVerified(true);
+    setIsVerificationCompleted(false);
+    setIsCodeInvalid(false);
+    setIsEmailEmpty(false);
+  };
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | undefined;
+
+    if (countdown > 0 && isEmailVerified && !isVerificationCompleted) {
+      interval = setInterval(() => {
+        setCountdown((prevCountdown) => prevCountdown - 1);
+      }, 1000);
+    }
+
+    if (countdown === 0 || isVerificationCompleted) {
+      clearInterval(interval);
+    }
+
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [countdown, isEmailVerified, isVerificationCompleted]);
+
+  const handleResendEmail = () => {
+    // 재발송하는 로직 추가
+    setVerificationCountdown(300); // Reset countdown
+    setCountdown(300); // Reset the countdown timer to 5 minutes
   };
 
   const handleVerify = () => {
-    // 인증 로직 추가
+    // 불러와서 검증하는 로직 추가
+    if (verificationCode === '123456') {
+      setIsVerificationCompleted(true);
+      setIsCodeInvalid(false);
+      setVerificationButtonText('인증완료');
+      setEmail(email); // 이 부분을 변경
+    } else {
+      setIsVerificationCompleted(false);
+      setVerificationCode('');
+      setIsCodeInvalid(true);
+      setVerificationButtonText('재입력');
+    }
   };
-
-  const handleResendVerification = () => {
-    // 재전송 로직 추가
-  };
+  function formatTime(seconds: number): string {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    const formattedTime = `${minutes
+      .toString()
+      .padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return formattedTime;
+  }
 
   const handleAddressChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setAddress(event.target.value);
@@ -84,107 +142,191 @@ function Application() {
   ) => {
     setDetailAddress(event.target.value);
   };
+  const [isFormComplete, setIsFormComplete] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    // 신청 정보를 처리하거나 제출하는 로직 추가
+  // Update the isFormComplete state whenever any required field changes
+  useEffect(() => {
+    const allFieldsFilled =
+      name !== '' &&
+      phoneNumber !== '' &&
+      email !== '' &&
+      selectedDevice !== '' &&
+      selectedReason !== '' &&
+      selectedFile !== null &&
+      address !== '' &&
+      detailAddress !== '' &&
+      depositorName !== '' &&
+      isCheckboxChecked;
+
+    setIsFormComplete(allFieldsFilled);
+  }, [
+    name,
+    phoneNumber,
+    email,
+    selectedDevice,
+    selectedReason,
+    selectedFile,
+    address,
+    detailAddress,
+    depositorName,
+    isCheckboxChecked
+  ]);
+  const handleSubmit = async () => {
+    if (!isCheckboxChecked) {
+      // Check if the checkbox is checked before submitting
+      return;
+    }
+
+    const formData = new FormData(); // Create a FormData object to send multipart/form-data
+
+    formData.append('name', name);
+    formData.append('phoneNumber', phoneNumber);
+    formData.append('email', email);
+    formData.append('deviceType', selectedDevice);
+    formData.append('reason', selectedReason);
+    formData.append('selectedFile', selectedFile as Blob);
+    formData.append('address', address);
+    formData.append('detailAddress', detailAddress);
+    formData.append('depositorName', depositorName);
+    console.log(name, depositorName, email);
+    try {
+      // Send the POST request using Axios
+      const response = await axios.post('/api/submit-application', formData);
+
+      // Handle the response from the server as needed
+      if (response.data.success) {
+        // Do something on success, like showing a success message
+        console.log('Application submitted successfully');
+      } else {
+        // Handle error case, show error message or take appropriate action
+        console.error('Application submission failed');
+      }
+    } catch (error) {
+      const err = error as Error;
+      console.error('폼 제출 오류:', err.message);
+    }
   };
-
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      setSelectedFile(event.target.files[0]);
+    }
+  };
   return (
-    <Container>
+    <div>
       <Title>신청하기</Title>
       <BorderLine />
-      <Form onSubmit={handleSubmit}>
-        <Row>
-          <FormGroup>
-            <Label>이름</Label>
-            <Input
+      <Container>
+        <Form onSubmit={(e) => e.preventDefault()}>
+          <Blank></Blank>
+          <SmallTitle>
+            이름<BasicInfoAsterisk>*</BasicInfoAsterisk>
+          </SmallTitle>
+          <BasicInput
+            id='name'
+            type='text'
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder={'예시 - 홍길동'}
+          />
+          <BorderLine2></BorderLine2>
+          <SmallTitle>
+            전화번호<BasicInfoAsterisk>*</BasicInfoAsterisk>
+          </SmallTitle>
+          <BasicInput
+            id='name'
+            type='text'
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            placeholder={'예시 - 010-0000-0000'}
+          />
+          <BorderLine2></BorderLine2>
+          <SmallTitle>
+            이메일<BasicInfoAsterisk>*</BasicInfoAsterisk>
+          </SmallTitle>
+          <DownWrapper>
+            <EmailInput
+              id='name'
               type='text'
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              value={email}
+              onChange={handleEmailChange}
+              placeholder={
+                '이메일은 신청내역 조회에 사용되니 정확하게 입력해주세요'
+              }
             />
-          </FormGroup>
-          <FormGroup>
-            <Label>전화번호</Label>
-            <Input
-              type='tel'
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder='01012345678'
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label1>신청 기기</Label1>
-            <Select value={selectedDevice} onChange={handleDeviceTypeChange}>
-              <option value='laptop'>노트북</option>
-              <option value='tablet'>태블릿</option>
-            </Select>
-          </FormGroup>
-        </Row>
-
-        <Row>
-          <FormGroup>
-            <Label1>신청 사유</Label1>
-            <Select
-              value={selectedReason}
-              onChange={handleSelectedReasonChange}>
-              <option value='coding'>코딩</option>
-              <option value='work'>사무작업</option>
-              <option value='study'>학업용</option>
-              <option value='etc'>기타</option>
-            </Select>
-          </FormGroup>
-          <FormGroup>
-            <Label>이메일</Label>
-            <Input type='email' value={email} onChange={handleEmailChange} />
-            <Button onClick={handleVerify}>인증하기</Button>
-          </FormGroup>
-          <FormGroup>
-            <Input
-              type='text'
-              value={verificationCode}
-              onChange={handleVerificationCodeChange}
-              placeholder='5분 안에 입력해주세요'
-            />
-            <Button onClick={handleResendVerification}>재전송</Button>
-          </FormGroup>
-        </Row>
-
-        <FormGroup>
-          <Span>기초수급자 증명서 업로드</Span>
-          <Input type='file' accept='.pdf,.jpg,.png' />
-        </FormGroup>
-        <FormGroup>
-          <Span>배송 주소</Span>
-          <Input
+            <CheckWrapper>
+              {isEmailVerified ? (
+                <>
+                  <CodeInput
+                    name='verificationCode'
+                    type='text'
+                    placeholder='인증번호'
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value)}
+                    style={{ borderColor: isCodeInvalid ? 'red' : '' }} // border 색 추가
+                  />
+                  <Time>{formatTime(countdown)}</Time>
+                  <IsCorrectbutton onClick={handleVerify}>
+                    {verificationButtonText}
+                  </IsCorrectbutton>
+                  <Resendbutton onClick={handleResendEmail}>
+                    재전송
+                  </Resendbutton>
+                </>
+              ) : (
+                <>
+                  <EmailCheckButton
+                    onClick={handleEmailVerification}
+                    disabled={isEmailVerified}>
+                    인증하기
+                  </EmailCheckButton>
+                </>
+              )}
+            </CheckWrapper>
+          </DownWrapper>
+          <BorderLine2></BorderLine2>
+          <SmallTitle>
+            신청 기기<BasicInfoAsterisk>*</BasicInfoAsterisk>
+          </SmallTitle>
+          <SelectDevice onChange={handleDeviceTypeChange}></SelectDevice>
+          <SmallTitle>
+            신청 사유<BasicInfoAsterisk>*</BasicInfoAsterisk>
+          </SmallTitle>
+          <SelectReason onChange={handleSelectedReasonChange}></SelectReason>
+          <SmallTitle>
+            기초수급자 증명서 업로드<BasicInfoAsterisk>*</BasicInfoAsterisk>
+          </SmallTitle>
+          <StyledFileInput onChange={handleFileChange} />
+          <SmallTitle>
+            배송 주소<BasicInfoAsterisk>*</BasicInfoAsterisk>
+          </SmallTitle>
+          <AddressInput
             type='text'
             value={address}
             onChange={handleAddressChange}
             placeholder='도로명 주소 검색'
           />
-          <Button onClick={handleSearchAddress}>검색</Button>
-
-          <Input
+          <AddressButton onClick={handleSearchAddress}>검색</AddressButton>
+          <AddressInput2
             type='text'
             value={detailAddress}
             onChange={handeleDetailAddressChange}
-            placeholder='상세 주소'
-          />
-        </FormGroup>
-        <Span1>
-          보증금 7만원 + 배송비(왕복배송비+제품관리비용) 1만원 = 8만원
-        </Span1>
-        <FormGroup>
-          <Input
+            placeholder='상세 주소'></AddressInput2>
+          <SmallTitle>
+            입금자명<BasicInfoAsterisk>*</BasicInfoAsterisk>
+          </SmallTitle>
+          <SmallInfo>
+            금액 8만원 = 7만원 (보증금/환불 예정) + 1만원 (배송비/제품관리비용)
+            <br />
+            농협은행 333-123456-45678 (예금주명 아웃라이언)
+          </SmallInfo>
+          <BorderLine3></BorderLine3>
+          <Input3
+            id='name'
             type='text'
-            value={deposit}
-            onChange={(e) => setDeposit(e.target.value)}
-            placeholder='입금자명'
+            value={depositorName}
+            onChange={(e) => setDepositorName(e.target.value)}
+            placeholder={'예시 - 홍길동'}
           />
-          <H5>입금계좌 농협은행 345-382589-3387((주)아웃라이언)</H5>
-        </FormGroup>
-
-        <FormGroup>
           <ScrollableContent>
             <PrivacyAgreement>
               <h4>개인정보 수집 동의</h4>
@@ -225,74 +367,303 @@ function Application() {
               </p>
             </PrivacyAgreement>
           </ScrollableContent>
-        </FormGroup>
-        <FormGroup>
-          <CheckboxLabel>
-            <Checkbox
+          <DownWrapper>
+            <StyledCheckbox
               type='checkbox'
-              checked={agreementChecked}
-              onChange={(e) => setAgreementChecked(e.target.checked)}
+              checked={isCheckboxChecked}
+              onChange={() => setIsCheckboxChecked(!isCheckboxChecked)}
             />
-            동의합니다
-          </CheckboxLabel>
-        </FormGroup>
-        <SubmitButton type='submit'>작성 완료</SubmitButton>
-      </Form>
-    </Container>
+            <Agree>동의합니다</Agree>
+          </DownWrapper>
+          <SubmitButton
+            type='button'
+            disabled={!isFormComplete}
+            onClick={handleSubmit}>
+            작성 완료
+          </SubmitButton>
+        </Form>
+      </Container>
+    </div>
   );
 }
 
 export default Application;
-
-const H5 = styled.h5`
-  /*입금계좌 안내문구*/
-  font-size: 13px;
-  color: #333;
-  white-space: nowrap; /* 넘치는 텍스트 줄 바꿈 방지 */
-  margin: 18px;
-`;
-
-const Button = styled.button`
-  /*검색, 재전송 등 버튼 스타일*/
-  padding: 8px;
-  margin: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  width: 130px;
-  height: 35px;
-`;
-
-const Span = styled.span`
-  /*기초수급자 인증서 업로드 및 배송주소 스타일*/
-  font-size: 16px;
-  font-weight: bold;
-  color: #333;
-  display: inline-block;
-  white-space: nowrap;
-  width: 200px;
-  margin-bottom: 7px;
-  margin-top: 14px;
-`;
-
-const Span1 = styled.span`
-  /*입금 안내 문구*/
-  font-size: 16px;
-  font-weight: bold;
-  color: #333;
-  display: inline-block;
-  white-space: nowrap;
-  width: 100%;
-  margin-bottom: 5px;
-  margin-top: 10px;
-  margin-left: 18px;
-`;
-
-const Row = styled.div`
-  /* 한줄에 배열되도록 컴포넌트 묶기*/
+const DownWrapper = styled.div`
   display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-direction: row;
+  justify-content: flex-start;
+`;
+const Blank = styled.div`
+  height: 30px;
+`;
+const AddressButton = styled.button`
+  font-family: 'GmarketSansMedium';
+  width: 100px;
+  height: 41px;
+  margin-right: 10px;
+  border: 1px solid #a6c8ff;
+  border-radius: 15px;
+  background: #428aff;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 41px;
+  cursor: pointer;
+  margin-left: 15px;
+`;
+const AddressInput = styled.input`
+  height: 30px;
+  width: 600px;
+  margin-left: 30px;
+  margin-bottom: 15px;
+  margin-top: 13px;
+  height: 40px;
+  padding: 0 10px;
+  vertical-align: middle;
+  border: 1px solid #dddddd;
+  border-radius: 15px; /* Apply border-radius */
+  font-size: 14px;
+  font-family: 'GmarketSansMedium';
+  color: #999999;
+`;
+const AddressInput2 = styled.input`
+  height: 30px;
+  width: 720px;
+  margin-left: 30px;
+  margin-bottom: 20px;
+  height: 40px;
+  padding: 0 10px;
+  vertical-align: middle;
+  border: 1px solid #dddddd;
+  border-radius: 15px; /* Apply border-radius */
+  font-size: 14px;
+  font-family: 'GmarketSansMedium';
+  color: #999999;
+`;
+const Input3 = styled.input`
+  height: 30px;
+  width: 320px;
+  margin-left: 30px;
+  height: 40px;
+  padding: 0 10px;
+  vertical-align: middle;
+  border: 1px solid #dddddd;
+  border-radius: 15px; /* Apply border-radius */
+  font-size: 14px;
+  font-family: 'GmarketSansMedium';
+  &::placeholder {
+    color: rgba(0, 0, 0, 0.2);
+  }
+`;
+const BorderLine3 = styled.hr`
+  stroke-width: 2px;
+  width: 700px;
+  flex-shrink: 0;
+  margin-left: 36px;
+  margin-right: 8px;
+  color: #dbdbdf;
+  border: none;
+  border-top: 1px solid #dbdbdf;
+  margin-top: 6px;
+`;
+const BorderLine2 = styled.hr`
+  stroke-width: 2px;
+  width: 700px;
+  flex-shrink: 0;
+  margin-left: 36px;
+  margin-right: 8px;
+  color: #dbdbdf;
+  border: none;
+  border-top: 1px solid #dbdbdf;
+  margin-top: 6px;
+  margin-bottom: 25px;
+`;
+const BasicInput = styled.input`
+  width: 600px;
+  height: 16px;
+  padding: 0px;
+  flex-shrink: 0;
+  border: none;
+  font-family: 'GmarketSansMedium';
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  margin-left: 36px;
+  margin-bottom: 0px;
+  margin-top: 10px;
+  outline: none;
+  &::placeholder {
+    color: rgba(0, 0, 0, 0.2);
+  }
+`;
+const EmailInput = styled.input`
+  width: 370px;
+  height: 16px;
+  padding: 0px;
+  flex-shrink: 0;
+  border: none;
+  font-family: 'GmarketSansMedium';
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  margin-left: 36px;
+  margin-top: 10px;
+  outline: none;
+  &::placeholder {
+    color: rgba(0, 0, 0, 0.2);
+  }
+`;
+const CheckWrapper = styled.div`
+  display: flex;
+  justify-content: flex-start;
+`;
+const CodeInput = styled.input`
+  width: 90px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 0.625rem;
+  border: 1px solid #dbdbdf;
+  background: #fff;
+  padding-left: 0.6rem;
+  color: #000;
+  leading-trim: both;
+  text-edge: cap;
+  font-family: 'GmarketSansMedium';
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 300;
+  line-height: 30px;
+  margin-left: 17px;
+`;
+const IsCorrectbutton = styled.button`
+  font-family: 'GmarketSansMedium';
+  width: 67px;
+  height: 31px;
+  margin-right: 10px;
+  border: 1px solid #a6c8ff;
+  border-radius: 15px;
+  border: 1px solid #dbdbdf;
+  background: #fff;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 31px;
+  letter-spacing: -2px;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(118, 118, 118, 0.1);
+  }
+`;
+
+const Time = styled.div`
+  font-family: 'GmarketSansMedium';
+  width: 60px;
+  height: 31px;
+  margin-left: 10px;
+  margin-top: 2px;
+  border: none;
+  background: #fff;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 31px;
+  cursor: pointer;
+`;
+
+const Resendbutton = styled.button`
+  font-family: 'GmarketSansMedium';
+  width: 67px;
+  height: 31px;
+  margin-right: 10px;
+  border: 1px solid #a6c8ff;
+  border-radius: 15px;
+  border: 1px solid #dbdbdf;
+  background: #fff;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 31px;
+  letter-spacing: -2px;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(118, 118, 118, 0.1);
+  }
+`;
+const EmailCheckButton = styled.button`
+  font-family: 'GmarketSansMedium';
+  width: 67px;
+  height: 31px;
+  margin-left: 10px;
+  margin-top: 2px;
+  border: 1px solid #a6c8ff;
+  border-radius: 15px;
+  border: 1px solid #dbdbdf;
+  background: #fff;
+  font-size: 13px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 31px;
+  letter-spacing: -2px;
+  cursor: pointer;
+  &:hover {
+    background: rgba(118, 118, 118, 0.1);
+  }
+`;
+const SmallTitle = styled.div`
+  color: rgba(0, 0, 0, 1);
+  font-family: 'GmarketSansMedium';
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  margin-left: 36px;
+  margin-bottom: 2px;
+}`;
+const SmallInfo = styled.div`
+  color: rgba(0, 0, 0, 1);
+  font-family: 'GmarketSansMedium';
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  margin-left: 36px;
+  margin-bottom: 2px;
+  margin-top: 10px;
+}`;
+const Agree = styled.div`
+  color: rgba(0, 0, 0, 1);
+  font-family: 'GmarketSansMedium';
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: normal;
+  margin-top: 10px;
+}`;
+const BasicInfoAsterisk = styled.span`
+  color: red;
+`;
+
+const StyledCheckbox = styled.input.attrs({ type: 'checkbox' })`
+  appearance: none;
+  border: 1.5px solid gainsboro;
+  border-radius: 0.35rem;
+  width: 19px;
+  height: 19px;
+  margin-top: 6px;
+  margin-right: 7px;
+  margin-left: 650px;
+  &:checked {
+    border-color: transparent;
+    background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M5.707 7.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0-1.414-1.414L7 8.586 5.707 7.293z'/%3e%3c/svg%3e");
+    background-size: 100% 100%;
+    background-position: 50%;
+    background-repeat: no-repeat;
+    background-color: limegreen;
+  }
 `;
 
 const BorderLine = styled.hr`
@@ -307,14 +678,16 @@ const BorderLine = styled.hr`
 `;
 
 const ScrollableContent = styled.div`
-  /* 스크롤바 스타일 설정 */
-  max-height: 100px;
+  max-height: 130px;
   overflow-y: scroll;
   border: 1px solid #ccc;
   padding: 15px;
-  margin-top: 5px;
+  margin-top: 20px;
+  width: 700px;
+  margin-left: 25px;
   scrollbar-width: thin; /* 스크롤바 너비 조정 */
   scrollbar-color: #888888 #f0f0f0; /* 스크롤바 색상 지정 */
+  border-radius: 15px;
 `;
 
 const PrivacyAgreement = styled.div`
@@ -325,138 +698,60 @@ const PrivacyAgreement = styled.div`
 `;
 
 const Container = styled.div`
-  /* 컨테이너 스타일 설정 */
-  width: 1223px;
-  height: 680px;
-  position: relative;
-  background: linear-gradient(
-    180deg,
-    #f1f3ff 1.03%,
-    rgba(127, 138, 242, 0) 100%
-  );
-  border-radius: 10px;
-  margin: 0 auto;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
 `;
 
-const Title = styled.h2`
-  /* 신청하기 타이틀 스타일 설정 */
-  width: 218.2px;
-  height: 45px;
-  font-family: 'Gmarket Sans TTF', sans-serif;
-  font-size: 30px;
-  line-height: 45px;
-  letter-spacing: -2px;
-  color: #000000;
+const Title = styled.div`
+  margin-top: 100px;
+  font-size: 28px;
   margin-bottom: 15px;
-  text-align: left;
-  margin-top: 20px;
-  margin-left: 70px;
+  margin-left: 390px;
 `;
 
 const Form = styled.form`
-  /* 폼 스타일 설정 */
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  margin: 0 auto;
-
-  width: 1100px;
-  height: 510px;
-  padding: 1px;
-  border-radius: 16px;
-  background: #ffffff;
-  border: 1px solid #dfdfdf;
-  box-shadow: 0px 4px 30px 3px #2a72ff40;
-`;
-
-const FormGroup = styled.div`
-  /* 폼 그룹 스타일 설정 */
-  display: flex;
-  justify-content: space-between;
-  flex-direction: row;
-  margin: 3px 15px;
-`;
-
-const Label = styled.div`
-  /* 라벨 스타일 설정 */
-  font-weight: bold;
-  display: inline-block;
-  width: 115px;
-  margin-top: 15px;
-`;
-
-const Label1 = styled.div`
-  /* 라벨 스타일 설정 (신청기기, 신청사유)*/
-  font-weight: bold;
-  display: inline-block;
-  width: 120px;
-  margin-top: 10px;
-`;
-
-const Input = styled.input`
-  /* 입력 필드 스타일 설정 */
-  padding: 8px;
-  margin: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  width: 100%;
-  height: 17px;
-`;
-
-const Select = styled.select`
-  /* 선택 필드 스타일 설정 */
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  width: 150px;
-  height: 33px;
-`;
-
-const CheckboxLabel = styled.label`
-  /* 체크박스 라벨 스타일 설정 */
-  display: flex;
-  align-items: center;
-`;
-
-const Checkbox = styled.input`
-  /* 체크박스 스타일 설정 */
-  margin-right: 8px;
-  appearance: none; /* 기본 스타일 제거 */
-  border: 2px solid #ccc; /* 체크박스 모양 설정 */
-  width: 15px;
-  height: 15px;
-  border-radius: 3px;
-  outline: none; /* 포커스 시 브라우저 기본 테두리 제거 */
-  cursor: pointer;
-
-  &:checked {
-    background-color: #000000;
-    border-color: #dbdbdf;
-  }
+  border-radius: 13px;
+  background: #fff;
+  padding: 20px;
+  width: 800px;
+  height: 1080px;
+  box-shadow: 0px 4px 20px 3px rgba(0, 0, 0, 0.05);
+  margin-bottom: 50px;
+  margin-left: 8px;
+  margin-top: 50px;
 `;
 
 const SubmitButton = styled.button`
-  /* 작성완료 제출 버튼 스타일 설정 */
-  background: linear-gradient(0deg, #428aff, #428aff),
-    linear-gradient(0deg, #a6c8ff, #a6c8ff);
+  font-family: 'GmarketSansMedium';
+  width: 200px;
+  height: 41px;
+  margin-right: 10px;
+  margin-left: 300px;
+  margin-top: 20px;
   border: 1px solid #a6c8ff;
-  width: 127px;
-  height: 43px;
-  radius: 14px;
-  border-radius: 14px;
+  border-radius: 15px;
+  background: #428aff;
+  color: rgba(255, 255, 255, 0.8);
   font-size: 15px;
-  font-weight: bold;
-  color: #ffffff;
-  margin-top: 11px;
-
+  font-style: normal;
+  font-weight: 500;
+  line-height: 41px;
+  letter-spacing: -2px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  /* 오른쪽 정렬 */
-  margin-left: 990px;
 
   &:hover {
-    background-color: #f1f3ff;
+    background-color: #0461e5;
+  }
+
+  &:disabled {
+    border: 1px solid #a6c8ff;
+    background: #8fbaff;
+    cursor: not-allowed;
+  }
+
+  &:disabled:hover {
+    background-color: #8fbaff;
   }
 `;

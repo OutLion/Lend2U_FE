@@ -42,6 +42,7 @@ const ApplicationCard = ({
   const [DeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [StatusModalOpen, setStatusModalOpen] = useState(false);
   const [UpdateModalOpen, setUpdateModalOpen] = useState(false);
+  const isReceptionStatus = applicationStatus === '접수중';
   const Apply = applicationStatus === '반환 신청';
   const openDeleteModal = () => {
     setDeleteModalOpen(true);
@@ -97,8 +98,12 @@ const ApplicationCard = ({
           {applicationStatus}
         </StatusButton>
         <InsideWrapper>
-          <DeleteButton onClick={openDeleteModal}>취소</DeleteButton>
-          <UpdateButton onClick={openUpdateModal}>수정</UpdateButton>
+          <DeleteButton disabled={!isReceptionStatus} onClick={openDeleteModal}>
+            취소
+          </DeleteButton>
+          <UpdateButton disabled={!isReceptionStatus} onClick={openUpdateModal}>
+            수정
+          </UpdateButton>
         </InsideWrapper>
       </UnderWrapper>
       {DeleteModalOpen && (

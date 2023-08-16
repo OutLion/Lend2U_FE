@@ -117,7 +117,7 @@ export const BasicButton = styled.button`
   border-radius: 15px;
   background: #428aff;
   color: rgba(255, 255, 255, 0.8);
-  font-size: 14px;
+  font-size: 17px;
   font-style: normal;
   font-weight: 500;
   line-height: 48px;

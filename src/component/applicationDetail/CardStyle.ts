@@ -71,7 +71,7 @@ export const StatusButton = styled.button`
   height: 57px;
   margin-right: 5px;
   margin-top: 12px;
-  border: 1px solid #a6c8ff;
+  border: 0px solid #a6c8ff;
   border-radius: 15px;
   background: #83b2ff;
   color: #222;
@@ -87,7 +87,6 @@ export const StatusButton = styled.button`
   }
 
   &:disabled {
-    border: 1px solid #a6c8ff;
     background: #e1e4fb;
     cursor: not-allowed;
   }
@@ -125,64 +124,54 @@ export const RefuseButton = styled.button`
 `;
 
 export const DeleteButton = styled.button`
-  font-family: 'GmarketSansMedium';
+  font-family: 'GmarketSansBold';
   width: 130px;
   height: 48px;
   margin-right: 5px;
   margin-top: 10px;
   border: 1px solid #a6c8ff;
   border-radius: 15px;
-  background: #428aff;
+  background-color: #0461e5;
   color: rgba(255, 255, 255, 0.8);
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
   line-height: 48px;
-  letter-spacing: -2px;
   cursor: pointer;
 
   &:hover {
-    background-color: #0461e5;
+    background: #428aff;
   }
 
   &:disabled {
     border: 1px solid #a6c8ff;
-    background: #8fbaff;
+    background: #aecdff;
     cursor: not-allowed;
-  }
-
-  &:disabled:hover {
-    background-color: #8fbaff;
   }
 `;
 export const UpdateButton = styled.button`
-  font-family: 'GmarketSansMedium';
+  font-family: 'GmarketSansBold';
   width: 130px;
   height: 48px;
   margin-right: 10px;
   margin-top: 10px;
   border: 1px solid #a6c8ff;
   border-radius: 15px;
-  background: #428aff;
+  background-color: #0461e5;
   color: rgba(255, 255, 255, 0.8);
   font-size: 15px;
   font-style: normal;
   font-weight: 500;
   line-height: 48px;
-  letter-spacing: -2px;
   cursor: pointer;
 
   &:hover {
-    background-color: #0461e5;
+    background: #428aff;
   }
 
   &:disabled {
     border: 1px solid #a6c8ff;
-    background: #8fbaff;
+    background: #aecdff;
     cursor: not-allowed;
-  }
-
-  &:disabled:hover {
-    background-color: #8fbaff;
   }
 `;
