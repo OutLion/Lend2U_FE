@@ -14,7 +14,20 @@ export const ModalContainer = styled.div`
   border: 1px solid #dbdbdf;
   overflow-y: auto;
 `;
-
+export const ModalContainer2 = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 430px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0px 4px 20px 10px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+  border: 1px solid #dbdbdf;
+  overflow-y: auto;
+`;
 export const ModalContent = styled.div`
   float: left;
 `;
@@ -75,7 +88,25 @@ export const BasicInput = styled.textarea`
   margin-top: 10px;
   margin-left: 40px;
 `;
-
+export const BasicInput2 = styled.input`
+  width: 300px;
+  height: 30px;
+  flex-shrink: 0;
+  border-radius: 0.625rem;
+  border: 1px solid #dbdbdf;
+  background: #fff;
+  padding-left: 0.6rem;
+  color: #000;
+  leading-trim: both;
+  text-edge: cap;
+  font-family: 'GmarketSansMedium';
+  font-size: 0.875rem;
+  font-style: normal;
+  font-weight: 300;
+  line-height: 30px;
+  margin-bottom: 30px;
+  margin-left: 40px;
+`;
 export const BasicButton = styled.button`
   font-family: 'GmarketSansMedium';
   width: 130px;
