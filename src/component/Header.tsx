@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled from 'styled-components';
 import { Link as ScrollLink, animateScroll as scroll } from 'react-scroll';
-
+import logo from '../assets/LEND2U.svg';
 const Header = () => {
   const scrollToTop = () => {
     scroll.scrollToTop();
@@ -14,7 +14,7 @@ const Header = () => {
         <HeaderLeft>
           <li>
             <NavLink to='/' onClick={scrollToTop}>
-              서비스명 로고
+              로고
             </NavLink>
           </li>
         </HeaderLeft>

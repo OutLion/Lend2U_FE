@@ -16,6 +16,7 @@ import {
 import DeleteModal from '../../component/applicationDetail/DeleteModal';
 import StatusModal from '../../component/applicationDetail/StatusModal';
 import UpdateModal from '../../component/applicationDetail/UpdateModal';
+import RefuseInfoModal from '../../component/applicationDetail/RefuseInfoModal';
 const ApplicationCard: React.FC<ApplicationDetailProps> = ({
   id,
   name,
@@ -40,8 +41,10 @@ const ApplicationCard: React.FC<ApplicationDetailProps> = ({
   const [DeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [StatusModalOpen, setStatusModalOpen] = useState(false);
   const [UpdateModalOpen, setUpdateModalOpen] = useState(false);
+  const [RefuseInfoModalOpen, setRefuseInfoModalOpen] = useState(false);
   const isReceptionStatus = applicationStatus === '접수중';
   const Apply = applicationStatus === '반환신청';
+  const isRefuse = applicationStatus === '신청반려';
   const openDeleteModal = () => {
     setDeleteModalOpen(true);
   };
@@ -62,6 +65,14 @@ const ApplicationCard: React.FC<ApplicationDetailProps> = ({
 
   const closeUpdateModal = () => {
     setUpdateModalOpen(false);
+  };
+  const openRefuseInfoModal = () => {
+    console.log(refuseReason);
+    setRefuseInfoModalOpen(true);
+  };
+
+  const closeRefuseInfoModal = () => {
+    setRefuseInfoModalOpen(false);
   };
   return (
     <div>
@@ -93,7 +104,10 @@ const ApplicationCard: React.FC<ApplicationDetailProps> = ({
           </CardInfo>
         </UpWrapper>
         <UnderWrapper>
-          <StatusButton disabled={!Apply} onClick={openStatusModal}>
+          <StatusButton
+            style={isRefuse ? { background: '#FFA5A5' } : {}}
+            disabled={!Apply && !isRefuse}
+            onClick={isRefuse ? openRefuseInfoModal : openStatusModal}>
             {applicationStatus}
           </StatusButton>
           <InsideWrapper>
@@ -128,6 +142,12 @@ const ApplicationCard: React.FC<ApplicationDetailProps> = ({
           isOpen={UpdateModalOpen}
           onClose={closeUpdateModal}
           onUpdate={onUpdate}
+        />
+      )}
+      {RefuseInfoModalOpen && (
+        <RefuseInfoModal
+          refuseReason={refuseReason} // 반려 사유를 props로 전달
+          onClose={closeRefuseInfoModal}
         />
       )}
     </div>

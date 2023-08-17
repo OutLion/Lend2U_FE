@@ -70,13 +70,16 @@ function StyledFileInput({ onChange }: StyledFileInputProps) {
   return (
     <FileInputContainer>
       <UploadName>
-        <span>{selectedFileName || '파일명'}</span>
+        <span>
+          {selectedFileName ||
+            '파일은 추후 수정이 불가능하니 다시 확인해주세요 pdf,jpg,jpeg,png 가능'}
+        </span>
       </UploadName>
       <Label>
         파일 선택
         <Input
           type='file'
-          accept='.pdf,.jpg,.png'
+          accept='.pdf,.jpg, .jpeg, .png'
           onChange={handleFileChange} // Use the modified event handler
         />
       </Label>

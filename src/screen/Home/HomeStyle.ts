@@ -12,7 +12,7 @@ export const NoticeApply = styled.div`
   border-radius: 16px;
   border: 1px solid #dfdfdf;
   background: #fff;
-  margin-left: 350px;
+  margin-left: 10px;
   margin-right: 20px;
 `;
 
@@ -175,7 +175,6 @@ export const ServiceIntro = styled.div`
   border-radius: 16px;
   border: 1px solid #dfdfdf;
   background: #fff;
-  margin-left: 350px;
   img {
     margin-left: 5px;
     margin-top: 2px;
@@ -185,12 +184,19 @@ export const ServiceIntro = styled.div`
 export const HomePage = styled.div`
   margin-top: 100px;
   margin-bottom: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const Section = styled.div`
-  padding: 0 36px;
   margin-top: 100px;
   margin-bottom: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const UnderWrapper = styled.div`
@@ -222,9 +228,9 @@ export const BorderLine = styled.hr`
 
 export const Title = styled.div`
   margin-top: 30px;
-  font-size: 22px;
+  font-size: 24px;
   margin-bottom: 15px;
-  margin-left: 360px;
+  margin-right: 980px;
 `;
 
 export const Notice = styled.div`
@@ -236,7 +242,6 @@ export const Notice = styled.div`
   border-radius: 16px;
   border: 1px solid #dfdfdf;
   background: #fff;
-  margin-left: 350px;
   margin-top: 50px;
 `;
 
@@ -282,7 +287,7 @@ export const AgreeContent = styled.div`
 export const DownWrapper = styled.div`
   display: flex;
   justify-content: flex-start;
-  margin-left: 1040px;
+  margin-left: 710px;
   margin-top: 20px;
 `;
 
@@ -291,7 +296,7 @@ export const CardList = styled.div`
   justify-content: flex-start;
   margin-top: 40px;
   margin-bottom: 100px;
-  margin-left: 400px;
+  margin-left: 40px;
 `;
 
 export const ApplyButton = styled.button`
@@ -356,7 +361,6 @@ export const SpecNotice = styled.div`
   border-radius: 16px;
   border: 1px solid #dfdfdf;
   background: #fff;
-  margin-left: 350px;
 `;
 
 export const Detail = styled.div`

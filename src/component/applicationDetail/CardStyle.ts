@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 export const CardContainer = styled.div`
-  width: 1140px;
+  width: 1150px;
   height: 195px;
   padding: 1px 1px 1px 0px;
   display: flex;
@@ -9,7 +9,6 @@ export const CardContainer = styled.div`
   border-radius: 16px;
   border: 1px solid #dfdfdf;
   background: #fff;
-  margin-left: 382px;
   margin-top: 30px;
 `;
 export const AdminCardContainer = styled.div`
@@ -30,6 +29,7 @@ export const UnderWrapper = styled.div`
   width: 180px;
   margin-left: auto;
   margin-top: 30px;
+  margin-right: 10px;
 `;
 export const UpWrapper = styled.div`
   float: left;

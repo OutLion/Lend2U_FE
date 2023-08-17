@@ -8,7 +8,8 @@ import {
   BorderLine2,
   StausWrapper,
   StatusOption,
-  ApplyOption
+  ApplyOption,
+  Container
 } from './ApplicationStyle';
 import { ApplicationDetailProps } from '../../component/applicationDetail/ApplicationDetailProps';
 import ApplicationCard from './ApplicationCard';
@@ -61,7 +62,7 @@ function ApplicationHistory() {
       });
   };
   return (
-    <div>
+    <Container>
       <Title>신청 내역 조회</Title>
       <BorderLine />
       <Notice>
@@ -110,7 +111,7 @@ function ApplicationHistory() {
       ) : (
         <p>No application data available.</p>
       )}
-    </div>
+    </Container>
   );
 }
 export default ApplicationHistory;

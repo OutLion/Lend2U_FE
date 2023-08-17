@@ -4,7 +4,8 @@ import SelectReason from '../component/applicationDetail/SelectReason';
 import SelectDevice from '../component/applicationDetail/SelectDevice';
 import StyledFileInput from '../component/applicationDetail/StyledFileInput';
 import axios from 'axios';
-
+import { Link } from 'react-router-dom';
+import scrollbar from '../assets/scrollBar.svg';
 declare global {
   interface Window {
     daum: any; // Daum 우편번호 서비스 API 객체의 타입 정의
@@ -31,6 +32,9 @@ function Application() {
   const [depositorName, setDepositorName] = useState('');
   const [agreementChecked, setAgreementChecked] = useState(false);
   const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
+  const cleanPhoneNumber = (input: string) => {
+    return input.replace(/-/g, '');
+  };
   useEffect(() => {
     // Daum 우편번호 서비스 스크립트 동적 로드
     const script = document.createElement('script');
@@ -78,7 +82,11 @@ function Application() {
       setIsEmailEmpty(true);
       return;
     }
-
+    if (!email.includes('@')) {
+      setEmail('');
+      setIsEmailEmpty(true);
+      return;
+    }
     const formData = new FormData();
     formData.append('email', email);
 
@@ -93,6 +101,7 @@ function Application() {
       .catch((error) => {
         console.error('Error sending email confirmation:', error);
       });
+    setIsEmailEmpty(false);
   };
 
   useEffect(() => {
@@ -238,17 +247,15 @@ function Application() {
       email: email,
       detailAddress: detailAddress,
       roadAddress: address,
-      depositorName: depositorName,
-      token: verificationToken
+      depositorName: depositorName
     };
 
     const formData = new FormData();
     formData.append(
       'applicationRequestDto',
-      new Blob([JSON.stringify(applicationData)], { type: 'application/json' }),
-      'applicationRequestDto'
+      new Blob([JSON.stringify(applicationData)], { type: 'application/json' })
     ); // Application data as JSON
-    formData.append('file', selectedFile as Blob, 'file');
+    formData.append('file', selectedFile as Blob);
     try {
       const response = await axios.post(
         'https://lend2u.site/api/submit',
@@ -278,7 +285,7 @@ function Application() {
     }
   };
   return (
-    <div>
+    <Container>
       <Title>신청하기</Title>
       <BorderLine />
       <Container>
@@ -301,9 +308,9 @@ function Application() {
           <BasicInput
             id='name'
             type='text'
-            value={phoneNumber}
+            value={cleanPhoneNumber(phoneNumber)} // cleanPhoneNumber 함수를 사용해서 하이픈을 제거한 값을 보여줌
             onChange={(e) => setPhoneNumber(e.target.value)}
-            placeholder={'예시 - 010-0000-0000'}
+            placeholder={'하이픈(-) 없이 입력해주세요'}
           />
           <BorderLine2></BorderLine2>
           <SmallTitle>
@@ -316,8 +323,13 @@ function Application() {
               value={email}
               onChange={handleEmailChange}
               placeholder={
-                '이메일은 신청내역 조회에 사용되니 정확하게 입력해주세요'
+                isEmailEmpty
+                  ? '올바른 이메일 형식을 입력하세요'
+                  : '이메일은 신청내역 조회에 사용되니 정확하게 입력해주세요'
               }
+              style={{
+                borderColor: isEmailEmpty ? 'red' : ''
+              }}
             />
             <CheckWrapper>
               {isEmailVerified ? (
@@ -441,15 +453,17 @@ function Application() {
             />
             <Agree>동의합니다</Agree>
           </DownWrapper>
-          <SubmitButton
-            type='button'
-            disabled={!isFormComplete}
-            onClick={handleSubmit}>
-            작성 완료
-          </SubmitButton>
+          <Link to={'/'}>
+            <SubmitButton
+              type='button'
+              disabled={!isFormComplete}
+              onClick={handleSubmit}>
+              작성 완료
+            </SubmitButton>
+          </Link>
         </Form>
       </Container>
-    </div>
+    </Container>
   );
 }
 
@@ -575,7 +589,7 @@ const EmailInput = styled.input`
   font-weight: 500;
   line-height: normal;
   margin-left: 36px;
-  margin-top: 10px;
+  margin-top: 13px;
   outline: none;
   &::placeholder {
     color: rgba(0, 0, 0, 0.2);
@@ -717,11 +731,11 @@ const StyledCheckbox = styled.input.attrs({ type: 'checkbox' })`
   appearance: none;
   border: 1.5px solid gainsboro;
   border-radius: 0.35rem;
-  width: 19px;
-  height: 19px;
-  margin-top: 6px;
+  width: 16px;
+  height: 16px;
+  margin-top: 8px;
   margin-right: 7px;
-  margin-left: 650px;
+  margin-left: 670px;
   &:checked {
     border-color: transparent;
     background-image: url("data:image/svg+xml,%3csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3e%3cpath d='M5.707 7.293a1 1 0 0 0-1.414 1.414l2 2a1 1 0 0 0 1.414 0l4-4a1 1 0 0 0-1.414-1.414L7 8.586 5.707 7.293z'/%3e%3c/svg%3e");
@@ -735,25 +749,34 @@ const StyledCheckbox = styled.input.attrs({ type: 'checkbox' })`
 const BorderLine = styled.hr`
   /*borderline 스타일 설정*/
   stroke-width: 2px;
-  width: 1169px;
+  width: 860px;
   flex-shrink: 0;
   color: #dbdbdf;
   border: none;
   border-top: 1px solid #dbdbdf;
-  margin-bottom: 25px;
+  margin-bottom: 5px;
 `;
 
 const ScrollableContent = styled.div`
-  max-height: 130px;
+  max-height: 140px;
   overflow-y: scroll;
   border: 1px solid #ccc;
   padding: 15px;
   margin-top: 20px;
   width: 700px;
-  margin-left: 25px;
-  scrollbar-width: thin; /* 스크롤바 너비 조정 */
-  scrollbar-color: #888888 #f0f0f0; /* 스크롤바 색상 지정 */
-  border-radius: 15px;
+  margin-left: 30px;
+  border-radius: 4px;
+  scrollbar-width: none; /* Remove default scrollbar */
+  &::-webkit-scrollbar {
+    width: 4px; /* Set width of the new custom scrollbar */
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    background-image: url(${scrollbar});
+    background-repeat: no-repeat;
+    background-size: 4px 134px;
+    border-radius: 2px; /* Rounded corners for the thumb */
+  }
 `;
 
 const PrivacyAgreement = styled.div`
@@ -773,8 +796,8 @@ const Container = styled.div`
 const Title = styled.div`
   margin-top: 100px;
   font-size: 28px;
-  margin-bottom: 15px;
-  margin-left: 390px;
+  margin-bottom: 10px;
+  margin-right: 750px;
 `;
 
 const Form = styled.form`
