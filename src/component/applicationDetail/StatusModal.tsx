@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import {
-  ModalContainer2,
+  ModalContainer,
   ModalContent,
   BasicButton,
-  BasicInput,
   BasicLabel,
   Title,
   ModalOverlay,
@@ -16,14 +15,11 @@ import SelectCourier from './SelectCourier';
 import SelectBank from './SelectBank';
 
 interface AdminRefuseModalProps {
-  apply_id: string;
+  id: number;
   onClose: () => void;
 }
 
-const StatusModal: React.FC<AdminRefuseModalProps> = ({
-  apply_id,
-  onClose
-}) => {
+const StatusModal: React.FC<AdminRefuseModalProps> = ({ id, onClose }) => {
   const [billNumber, setBillNumber] = useState('');
   const [courierName, setCourierName] = useState('');
   const [bankName, setBankName] = useState('');
@@ -40,26 +36,45 @@ const StatusModal: React.FC<AdminRefuseModalProps> = ({
   };
   const handleSubmit = () => {
     if (billNumber && courierName && bankName && depositNum) {
+      const returnData = {
+        id: id.toString(),
+        waybillNumber: billNumber,
+        courier: courierName,
+        bank: bankName,
+        deposit: depositNum
+      };
+      const formData = new FormData();
+      formData.append(
+        'returnRequestDto',
+        new Blob([JSON.stringify(returnData)], { type: 'application/json' }),
+        'returnRequestDto'
+      );
+
+      const token = localStorage.getItem('verificationToken');
+
       axios
-        .put(`https://example-api.com/applications/${apply_id}`, {
-          waybillNumber: billNumber,
-          courier: courierName,
-          bank: bankName,
-          deposit: depositNum
-        })
+        .post(
+          'https://lend2u.site/api/return',
+          formData, // Use the FormData object here
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data' // Set the content type for FormData
+            }
+          }
+        )
         .then((response) => {
+          console.log(response);
           onClose();
         })
         .catch((error) => {
-          console.error('Error updating application status:', error);
+          console.error('Error updating return status:', error);
         });
     }
-    console.log(billNumber, courierName, bankName, depositNum);
-    onClose();
   };
 
   return (
-    <ModalContainer2>
+    <ModalContainer>
       <ModalOverlay>
         <ModalContent>
           <Title>반환정보 입력</Title>
@@ -86,7 +101,7 @@ const StatusModal: React.FC<AdminRefuseModalProps> = ({
           </ButtonWrapper>
         </ModalContent>
       </ModalOverlay>
-    </ModalContainer2>
+    </ModalContainer>
   );
 };
 

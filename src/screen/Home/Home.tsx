@@ -3,11 +3,9 @@ import Header from '../../component/Header';
 import {
   DownWrapper,
   Wrapper,
-  UpWrapper,
   BorderLine,
   UnderWrapper,
   HomePage,
-  SpecialWrapper,
   SecondWrapper,
   NoticeTitle,
   Notice,
@@ -43,6 +41,7 @@ import LaptopCard from '../../component/Spec/LaptopCard';
 import TabletCard from '../../component/Spec/TabletCard';
 import intro from '../../assets/service_intro.svg';
 import img from '../../assets/tablet.svg';
+import axios from 'axios';
 function Home() {
   const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
   const [email, setEmail] = useState('');
@@ -60,11 +59,21 @@ function Home() {
       setIsEmailEmpty(true);
       return;
     }
-    setIsEmailVerified(true);
-    setIsVerificationCompleted(false);
-    setIsCodeInvalid(false);
-    setIsEmailEmpty(false);
-    // 여기 email로 코드 발송하는 로직 추가
+
+    const formData = new FormData();
+    formData.append('email', email);
+
+    axios
+      .post('https://lend2u.site/api/sendCode', formData)
+      .then((response) => {
+        setIsEmailVerified(true);
+        setIsVerificationCompleted(false);
+        setIsCodeInvalid(false);
+        setIsEmailEmpty(false);
+      })
+      .catch((error) => {
+        console.error('Error sending email confirmation:', error);
+      });
   };
 
   useEffect(() => {
@@ -88,24 +97,62 @@ function Home() {
   }, [countdown, isEmailVerified, isVerificationCompleted]);
 
   const handleResendEmail = () => {
-    // 재발송하는 로직 추가
+    const formData = new FormData();
+    formData.append('email', email);
+
+    axios
+      .post('https://lend2u.site/api/sendCode', formData)
+      .then((response) => {
+        setIsEmailVerified(true);
+        setIsVerificationCompleted(false);
+        setIsCodeInvalid(false);
+        setIsEmailEmpty(false);
+      })
+      .catch((error) => {
+        console.error('Error sending email confirmation:', error);
+      });
     setVerificationCountdown(300); // Reset countdown
     setCountdown(300); // Reset the countdown timer to 5 minutes
   };
 
   const handleVerify = () => {
-    // 불러와서 검증하는 로직 추가
-    if (verificationCode === '123456') {
-      setIsVerificationCompleted(true);
-      setIsCodeInvalid(false);
-      setVerificationButtonText('인증완료');
-    } else {
-      setIsVerificationCompleted(false); // 코드가 일치하지 않을 때 인증 완료 상태 해제
-      setVerificationCode(''); // 코드 입력 필드 초기화
-      setIsCodeInvalid(true);
-      setVerificationButtonText('재입력');
-    }
+    // 이메일과 사용자가 입력한 인증번호를 서버로 보내서 처리
+    const formData = new FormData();
+    formData.append('email', email); // 이메일 주소
+    formData.append('code', verificationCode); // 사용자가 입력한 인증번호
+
+    axios
+      .post('https://lend2u.site/api/confirmEmail', formData)
+      .then((response) => {
+        if (response.status === 200) {
+          // HTTP 상태 코드 200일 경우 처리 (성공)
+          console.log('Email verification successful:', response);
+
+          // 토큰 저장
+          const token = response.data; // 이 부분은 실제 응답에 맞게 수정해야 합니다.
+          console.log(token);
+          localStorage.setItem('verificationToken', token); // 로컬 스토리지에 토큰 저장
+
+          setIsVerificationCompleted(true);
+          setIsCodeInvalid(false);
+          setVerificationButtonText('인증완료');
+        } else {
+          // HTTP 상태 코드가 200이 아닌 경우 처리 (실패)
+          console.log('Email verification failed:', response);
+          setIsVerificationCompleted(false);
+          setIsCodeInvalid(true);
+          setVerificationButtonText('재입력');
+        }
+      })
+      .catch((error) => {
+        // HTTP 요청 실패 시 처리
+        console.error('Error confirming email:', error);
+        setIsVerificationCompleted(false);
+        setIsCodeInvalid(true);
+        setVerificationButtonText('재입력');
+      });
   };
+
   function formatTime(seconds: number): string {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
@@ -114,7 +161,11 @@ function Home() {
       .padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
     return formattedTime;
   }
-  const adminEmails = ['admin@example.com', 'anotheradmin@example.com']; // Add your admin email addresses here
+  const adminEmails = [
+    'admin@example.com',
+    'anotheradmin@example.com',
+    'mju.outlion@gmail.com'
+  ];
 
   function isEmailAdmin(email: string): boolean {
     return adminEmails.includes(email);
@@ -250,7 +301,7 @@ function Home() {
                     </CheckButton>
                   </Link>
                 ) : (
-                  <Link to={`/applicationhistory/${email}`}>
+                  <Link to={'/applicationhistory'}>
                     <CheckButton disabled={!isVerificationCompleted}>
                       신청내역 조회
                     </CheckButton>

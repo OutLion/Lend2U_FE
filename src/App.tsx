@@ -11,10 +11,7 @@ function App() {
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/application' element={<Application />} />
-        <Route
-          path='/applicationhistory/:email'
-          element={<ApplicationHistory />}
-        />
+        <Route path='/applicationhistory' element={<ApplicationHistory />} />
         <Route path='/admin' element={<Admin />} />
       </Routes>
     </Router>

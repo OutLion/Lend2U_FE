@@ -1,9 +1,8 @@
 import styled from 'styled-components';
 
 export const ModalContainer = styled.div`
+  margin-left: 1200px;
   position: absolute;
-  top: 50%;
-  left: 50%;
   transform: translate(-50%, -50%);
   width: 400px;
   height: 370px;
@@ -21,6 +20,19 @@ export const ModalContainer2 = styled.div`
   transform: translate(-50%, -50%);
   width: 400px;
   height: 430px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0px 4px 20px 10px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+  border: 1px solid #dbdbdf;
+  overflow-y: auto;
+`;
+export const ModalContainer3 = styled.div`
+  margin-left: 1200px;
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  height: 270px;
   background: #fff;
   border-radius: 20px;
   box-shadow: 0px 4px 20px 10px rgba(0, 0, 0, 0.05);

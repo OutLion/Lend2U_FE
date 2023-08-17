@@ -1,5 +1,5 @@
 export interface ApplicationDetailProps {
-  apply_id: string;
+  id: number;
   name: string;
   phoneNum: string;
   device: string;
@@ -17,4 +17,5 @@ export interface ApplicationDetailProps {
   courier: string;
   bank: string;
   deposit: string;
+  onUpdate: () => void;
 }

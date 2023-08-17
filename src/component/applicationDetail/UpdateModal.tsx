@@ -15,40 +15,39 @@ import SelectDevice2 from './SelectDevice2';
 import SelectReason2 from './SelectReason2';
 
 interface AdminRefuseModalProps {
-  apply_id: string;
+  id: number;
   name: string;
   phoneNum: string;
   device: string;
   applicationReason: string;
-  email: string;
   certificationFile: string;
   detailAddress: string;
   roadAddress: string;
   depositorName: string;
   isOpen: boolean;
   onClose: () => void;
+  onUpdate: () => void;
 }
 
 const UpdateModal: React.FC<AdminRefuseModalProps> = ({
-  apply_id,
+  id,
   name,
   phoneNum,
   device,
   applicationReason,
-  email,
   certificationFile,
   detailAddress,
   roadAddress,
   depositorName,
   isOpen,
-  onClose
+  onClose,
+  onUpdate
 }) => {
   const [updatedName, setUpdatedName] = useState(name);
   const [updatedPhoneNum, setUpdatedPhoneNum] = useState(phoneNum);
   const [updatedDevice, setUpdatedDevice] = useState(device);
   const [updatedApplicationReason, setUpdatedApplicationReason] =
     useState(applicationReason);
-  const [updatedEmail, setUpdatedEmail] = useState(email);
   const [updatedCertificationFile, setUpdatedCertificationFile] =
     useState(certificationFile);
   const [updatedDetailAddress, setUpdatedDetailAddress] =
@@ -67,38 +66,44 @@ const UpdateModal: React.FC<AdminRefuseModalProps> = ({
     }
   };
   const handleSubmit = () => {
+    const applicationData = {
+      name: updatedName,
+      phoneNum: updatedPhoneNum,
+      device: updatedDevice,
+      applicationReason: updatedApplicationReason,
+      certificationFile: updatedCertificationFile,
+      detailAddress: updatedDetailAddress,
+      roadAddress: updatedRoadAddress,
+      depositorName: updatedDepositorName
+    };
+    const formData = new FormData();
+    formData.append(
+      'editRequestDto',
+      new Blob([JSON.stringify(applicationData)], { type: 'application/json' }),
+      'editRequestDto'
+    );
+
+    const token = localStorage.getItem('verificationToken');
+
     axios
-      .put(`https://example-api.com/applications/${apply_id}`, {
-        name: updatedName,
-        phoneNum: updatedPhoneNum,
-        device: updatedDevice,
-        applicationReason: updatedApplicationReason,
-        email: updatedEmail,
-        certificationFile: updatedCertificationFile,
-        detailAddress: updatedDetailAddress,
-        roadAddress: updatedRoadAddress,
-        depositorName: updatedDepositorName
-      })
+      .patch(
+        `https://lend2u.site/api/update/${id}`,
+        formData, // Use the FormData object here
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data' // Set the content type for FormData
+          }
+        }
+      )
       .then((response) => {
+        onUpdate();
         onClose();
+        console.log(response);
       })
       .catch((error) => {
-        // Handle update failure
         console.error('Error updating application:', error);
       });
-    console.log(
-      apply_id,
-      updatedName,
-      updatedPhoneNum,
-      updatedDevice,
-      updatedApplicationReason,
-      updatedEmail,
-      updatedCertificationFile,
-      updatedDetailAddress,
-      updatedRoadAddress,
-      updatedDepositorName
-    );
-    onClose();
   };
   return (
     <ModalContainer>
@@ -120,11 +125,6 @@ const UpdateModal: React.FC<AdminRefuseModalProps> = ({
           <SelectDevice2 onChange={handleDeviceChange} />
           <BasicLabel>신청 사유</BasicLabel>
           <SelectReason2 onChange={handleReasonChange} />
-          <BasicLabel>이메일</BasicLabel>
-          <BasicInput2
-            value={updatedEmail}
-            onChange={(e) => setUpdatedEmail(e.target.value)}
-          />
           <BasicLabel>파일 선택</BasicLabel>
           <BasicInput2
             value={updatedCertificationFile}

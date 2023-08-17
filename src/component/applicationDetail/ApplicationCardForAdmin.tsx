@@ -13,9 +13,10 @@ import {
 import AdminRefuseModal from './AdminRefuseModal';
 import ControlStatusModal from './ControlStatusModal';
 import InfoModal from './InfoModal';
+import axios from 'axios';
 
 const ApplicationCardForAdmin = ({
-  apply_id,
+  id,
   name,
   phoneNum,
   device,
@@ -32,12 +33,13 @@ const ApplicationCardForAdmin = ({
   waybillNumber,
   courier,
   bank,
-  deposit
+  deposit,
+  onUpdate
 }: ApplicationDetailProps) => {
   const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
   const [controlModalOpen, setControlModalOpen] = useState(false);
   const [retrieveInfoModalOpen, setRetrieveInfoModalOpen] = useState(false);
-  const isRejected = applicationStatus === '신청 반려';
+  const isRejected = applicationStatus === '신청반려';
   const openRejectModal = () => {
     setIsRejectModalOpen(true);
   };
@@ -65,8 +67,30 @@ const ApplicationCardForAdmin = ({
   };
   const handleCertificationDownload = () => {
     if (certificationFile) {
-      // Assume certificationFile is the URL of the file
-      window.open(certificationFile, '_blank');
+      const token = localStorage.getItem('verificationToken');
+      console.log(token);
+      // Assuming certificationFile contains the file ID or filename
+      axios({
+        url: `https://lend2u.site/api/download/${id}`,
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then((response) => {
+          const blob = new Blob([response.data], {
+            type: response.headers['content-type']
+          });
+          const blobUrl = URL.createObjectURL(blob);
+
+          window.open(blobUrl, '_blank');
+
+          URL.revokeObjectURL(blobUrl);
+        })
+        .catch((error) => {
+          console.error('Error downloading certification file:', error);
+        });
     }
   };
   return (
@@ -124,18 +148,20 @@ const ApplicationCardForAdmin = ({
       </UnderWrapper>
       {isRejectModalOpen && (
         <AdminRefuseModal
-          apply_id={apply_id}
+          id={id}
           isOpen={isRejectModalOpen}
           onClose={closeRejectModal}
           onConfirm={handleRejectSubmit}
+          onUpdate={onUpdate}
         />
       )}
       {controlModalOpen && (
         <ControlStatusModal
-          apply_id={apply_id}
+          id={id}
           applicationStatus={applicationStatus}
           isOpen={controlModalOpen}
           onClose={closeControlModal}
+          onUpdate={onUpdate}
         />
       )}
       {retrieveInfoModalOpen && (

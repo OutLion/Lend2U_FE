@@ -36,8 +36,8 @@ function SelectStatus({ onChange, status }: SelectStatusProps) {
     { value: '접수중', label: '접수중' },
     { value: '승인', label: '승인' },
     { value: '배송중', label: '배송중' },
-    { value: '배송 완료', label: '배송 완료' },
-    { value: '반환 완료', label: '반환 완료' }
+    { value: '배송완료', label: '배송완료' },
+    { value: '반환완료', label: '반환완료' }
   ];
 
   return (

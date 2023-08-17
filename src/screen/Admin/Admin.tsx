@@ -1,117 +1,64 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { BorderLine, Title } from './AdminStyle';
 import { ApplicationDetailProps } from '../../component/applicationDetail/ApplicationDetailProps';
 import ApplicationCardForAdmin from '../../component/applicationDetail/ApplicationCardForAdmin';
+import axios from 'axios';
 
 function Admin() {
-  const sampleData: ApplicationDetailProps[] = [
-    {
-      apply_id: '1',
-      name: '홍길동',
-      phoneNum: '010-1234-5678',
-      device: '태블릿',
-      applicationReason: '코딩/프로그래밍',
-      email: 'john@example.com',
-      certificationFile: 'cert123.pdf',
-      detailAddress: '서울특별시 은평구 은평로1515',
-      roadAddress: '00오피스텔 687호',
-      applyDate: '2023-08-15',
-      returnDate: '2023-08-25',
-      depositorName: '홍길동',
-      applicationStatus: '신청 반려',
-      refuseReason: '',
-      waybillNumber: '',
-      courier: '',
-      bank: '',
-      deposit: ''
-    },
-    {
-      apply_id: '2',
-      name: '홍길동',
-      phoneNum: '010-1234-5678',
-      device: '태블릿',
-      applicationReason: '코딩/프로그래밍',
-      email: 'john@example.com',
-      certificationFile: 'cert123.pdf',
-      detailAddress: '서울특별시 은평구 은평로1515',
-      roadAddress: '00오피스텔 687호',
-      applyDate: '2023-08-15',
-      returnDate: '2023-08-25',
-      depositorName: '홍길동',
-      applicationStatus: '신청 반려',
-      refuseReason: '',
-      waybillNumber: '',
-      courier: '',
-      bank: '',
-      deposit: ''
-    },
-    {
-      apply_id: '3',
-      name: '홍길동',
-      phoneNum: '010-1234-5678',
-      device: '태블릿',
-      applicationReason: '코딩/프로그래밍',
-      email: 'john@example.com',
-      certificationFile: 'cert123.pdf',
-      detailAddress: '서울특별시 은평구 은평로1515',
-      roadAddress: '00오피스텔 687호',
-      applyDate: '2023-08-15',
-      returnDate: '2023-08-25',
-      depositorName: '홍길동',
-      applicationStatus: '접수 승인',
-      refuseReason: '',
-      waybillNumber: '123456789',
-      courier: '00택배',
-      bank: '00은행',
-      deposit: '333-1234-45678'
-    },
-    {
-      apply_id: '4',
-      name: '홍길동',
-      phoneNum: '010-1234-5678',
-      device: '태블릿',
-      applicationReason: '코딩/프로그래밍',
-      email: 'john@example.com',
-      certificationFile: 'cert123.pdf',
-      detailAddress: '서울특별시 은평구 은평로1515',
-      roadAddress: '00오피스텔 687호',
-      applyDate: '2023-08-15',
-      returnDate: '2023-08-25',
-      depositorName: '홍길동',
-      applicationStatus: '반환 신청',
-      refuseReason: '',
-      waybillNumber: '',
-      courier: '',
-      bank: '',
-      deposit: ''
-    },
-    {
-      apply_id: '5',
-      name: '홍길동',
-      phoneNum: '010-1234-5678',
-      device: '태블릿',
-      applicationReason: '코딩/프로그래밍',
-      email: 'john@example.com',
-      certificationFile: 'cert123.pdf',
-      detailAddress: '서울특별시 은평구 은평로1515',
-      roadAddress: '00오피스텔 687호',
-      applyDate: '2023-08-15',
-      returnDate: '2023-08-25',
-      depositorName: '홍길동',
-      applicationStatus: '반환 완료',
-      refuseReason: '',
-      waybillNumber: '',
-      courier: '',
-      bank: '',
-      deposit: ''
-    }
-  ];
+  const storedToken = localStorage.getItem('verificationToken');
+  const [applicationList, setApplicationList] = useState<
+    ApplicationDetailProps[]
+  >([]);
+  const handleUpdate = () => {
+    axios
+      .get('https://lend2u.site/api/get', {
+        headers: {
+          Authorization: storedToken
+        }
+      })
+      .then((response) => {
+        console.log(response);
+        if (response.data) {
+          setApplicationList(response.data);
+        } else {
+          console.error('Application list data not available:', response.data);
+        }
+      })
+      .catch((error) => {
+        console.error('Error fetching application history:', error);
+      });
+  };
+  useEffect(() => {
+    // API 호출을 통해 신청 내역 데이터 가져오기
+    axios
+      .get('https://lend2u.site/api/get', {
+        headers: {
+          Authorization: storedToken
+        }
+      })
+      .then((response) => {
+        setApplicationList(response.data);
+      })
+      .catch((error) => {
+        console.error('Error fetching application history:', error);
+      });
+  }, [storedToken]);
   return (
     <div>
       <Title>관리자 페이지</Title>
       <BorderLine />
-      {sampleData.map((data) => (
-        <ApplicationCardForAdmin key={data.apply_id} {...data} />
+      {applicationList.map((data) => (
+        <ApplicationCardForAdmin
+          key={data.id}
+          {...data}
+          applicationStatus={data.applicationStatus || '접수중'}
+          returnDate={data.returnDate || ''} // Replace null with an empty string
+          waybillNumber={data.waybillNumber || ''}
+          courier={data.courier || ''}
+          bank={data.bank || ''}
+          deposit={data.deposit || ''}
+          onUpdate={handleUpdate}
+        />
       ))}
     </div>
   );

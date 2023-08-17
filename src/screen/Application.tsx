@@ -78,10 +78,21 @@ function Application() {
       setIsEmailEmpty(true);
       return;
     }
-    setIsEmailVerified(true);
-    setIsVerificationCompleted(false);
-    setIsCodeInvalid(false);
-    setIsEmailEmpty(false);
+
+    const formData = new FormData();
+    formData.append('email', email);
+
+    axios
+      .post('https://lend2u.site/api/sendCode', formData)
+      .then((response) => {
+        setIsEmailVerified(true);
+        setIsVerificationCompleted(false);
+        setIsCodeInvalid(false);
+        setIsEmailEmpty(false);
+      })
+      .catch((error) => {
+        console.error('Error sending email confirmation:', error);
+      });
   };
 
   useEffect(() => {
@@ -105,24 +116,60 @@ function Application() {
   }, [countdown, isEmailVerified, isVerificationCompleted]);
 
   const handleResendEmail = () => {
-    // 재발송하는 로직 추가
+    const formData = new FormData();
+    formData.append('email', email);
+
+    axios
+      .post('https://lend2u.site/api/sendCode', formData)
+      .then((response) => {
+        setIsEmailVerified(true);
+        setIsVerificationCompleted(false);
+        setIsCodeInvalid(false);
+        setIsEmailEmpty(false);
+      })
+      .catch((error) => {
+        console.error('Error sending email confirmation:', error);
+      });
     setVerificationCountdown(300); // Reset countdown
     setCountdown(300); // Reset the countdown timer to 5 minutes
   };
 
   const handleVerify = () => {
-    // 불러와서 검증하는 로직 추가
-    if (verificationCode === '123456') {
-      setIsVerificationCompleted(true);
-      setIsCodeInvalid(false);
-      setVerificationButtonText('인증완료');
-      setEmail(email); // 이 부분을 변경
-    } else {
-      setIsVerificationCompleted(false);
-      setVerificationCode('');
-      setIsCodeInvalid(true);
-      setVerificationButtonText('재입력');
-    }
+    // 이메일과 사용자가 입력한 인증번호를 서버로 보내서 처리
+    const formData = new FormData();
+    formData.append('email', email); // 이메일 주소
+    formData.append('code', verificationCode); // 사용자가 입력한 인증번호
+
+    axios
+      .post('https://lend2u.site/api/confirmEmail', formData)
+      .then((response) => {
+        if (response.status === 200) {
+          // HTTP 상태 코드 200일 경우 처리 (성공)
+          console.log('Email verification successful:', response);
+
+          // 토큰 저장
+          const token = response.data; // 이 부분은 실제 응답에 맞게 수정해야 합니다.
+          console.log(token);
+          localStorage.setItem('verificationToken', token); // 로컬 스토리지에 토큰 저장
+
+          setIsVerificationCompleted(true);
+          setIsCodeInvalid(false);
+          setVerificationButtonText('인증완료');
+        } else {
+          // HTTP 상태 코드가 200이 아닌 경우 처리 (실패)
+          console.log('Email verification failed:', response);
+          setIsVerificationCompleted(false);
+          setIsCodeInvalid(true);
+          setVerificationButtonText('재입력');
+        }
+      })
+      .catch((error) => {
+        // HTTP 요청 실패 시 처리
+        console.error('Error confirming email:', error);
+        setIsVerificationCompleted(false);
+        setIsCodeInvalid(true);
+        setVerificationButtonText('재입력');
+      });
   };
   function formatTime(seconds: number): string {
     const minutes = Math.floor(seconds / 60);
@@ -173,33 +220,52 @@ function Application() {
   ]);
   const handleSubmit = async () => {
     if (!isCheckboxChecked) {
-      // Check if the checkbox is checked before submitting
       return;
     }
 
-    const formData = new FormData(); // Create a FormData object to send multipart/form-data
+    const verificationToken = localStorage.getItem('verificationToken');
 
-    formData.append('name', name);
-    formData.append('phoneNumber', phoneNumber);
-    formData.append('email', email);
-    formData.append('deviceType', selectedDevice);
-    formData.append('reason', selectedReason);
-    formData.append('selectedFile', selectedFile as Blob);
-    formData.append('address', address);
-    formData.append('detailAddress', detailAddress);
-    formData.append('depositorName', depositorName);
-    console.log(name, depositorName, email);
+    if (!verificationToken) {
+      console.error('Verification token not found');
+      return;
+    }
+
+    const applicationData = {
+      name: name,
+      phoneNum: phoneNumber,
+      device: selectedDevice,
+      applicationReason: selectedReason,
+      email: email,
+      detailAddress: detailAddress,
+      roadAddress: address,
+      depositorName: depositorName,
+      token: verificationToken
+    };
+
+    const formData = new FormData();
+    formData.append(
+      'applicationRequestDto',
+      new Blob([JSON.stringify(applicationData)], { type: 'application/json' }),
+      'applicationRequestDto'
+    ); // Application data as JSON
+    formData.append('file', selectedFile as Blob, 'file');
     try {
-      // Send the POST request using Axios
-      const response = await axios.post('/api/submit-application', formData);
+      const response = await axios.post(
+        'https://lend2u.site/api/submit',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data' // 올바른 Content-Type 설정
+          }
+        }
+      );
 
-      // Handle the response from the server as needed
-      if (response.data.success) {
-        // Do something on success, like showing a success message
+      if (response.status === 200) {
         console.log('Application submitted successfully');
+        // 성공 처리를 위한 로직 추가
       } else {
-        // Handle error case, show error message or take appropriate action
         console.error('Application submission failed');
+        // 실패 처리를 위한 로직 추가
       }
     } catch (error) {
       const err = error as Error;

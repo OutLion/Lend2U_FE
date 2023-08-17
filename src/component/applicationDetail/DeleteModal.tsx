@@ -1,56 +1,60 @@
-import React, { useState } from 'react';
+import React from 'react';
 import axios from 'axios';
 import {
-  ModalContainer,
+  ModalContainer3,
   ModalContent,
   BasicButton,
-  BasicInput,
   BasicLabel,
   Title,
   ModalOverlay,
   Border,
   ButtonWrapper
 } from './ModalStyle';
-import SelectStatus from './SelectStatus';
 
 interface AdminRefuseModalProps {
-  apply_id: string;
+  id: number;
   onClose: () => void;
+  onUpdate: () => void;
 }
 
 const DeleteModal: React.FC<AdminRefuseModalProps> = ({
-  apply_id,
-  onClose
+  id,
+  onClose,
+  onUpdate
 }) => {
-  const handleRejectSubmit = () => {
-    //삭제하는 로직
+  const handleDeleteSubmit = () => {
+    const token = localStorage.getItem('verificationToken');
     axios
-      .delete(`https://example-api.com/applications/${apply_id}`)
+      .put(`https://lend2u.site/api/cancel/${id}`, null, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
       .then((response) => {
-        onClose(); // Close the modal after successful deletion
+        console.log(response);
+        onUpdate();
+        onClose(); // 삭제 성공 시 모달 닫기
       })
       .catch((error) => {
-        // Handle deletion failure
         console.error('Error deleting application:', error);
       });
     onClose();
-    console.log(apply_id, 'delete');
   };
 
   return (
-    <ModalContainer>
+    <ModalContainer3>
       <ModalOverlay>
         <ModalContent>
           <Title>신청내역 삭제</Title>
           <Border></Border>
           <BasicLabel>신청내역을 삭제하시겠습니까?</BasicLabel>
           <ButtonWrapper>
-            <BasicButton onClick={handleRejectSubmit}>삭제</BasicButton>
+            <BasicButton onClick={handleDeleteSubmit}>삭제</BasicButton>
             <BasicButton onClick={onClose}>취소</BasicButton>
           </ButtonWrapper>
         </ModalContent>
       </ModalOverlay>
-    </ModalContainer>
+    </ModalContainer3>
   );
 };
 

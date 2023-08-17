@@ -13,14 +13,11 @@ import {
   UpdateButton,
   UnderWrapper
 } from '../../component/applicationDetail/CardStyle';
-import AdminRefuseModal from '../../component/applicationDetail/AdminRefuseModal';
-import ControlStatusModal from '../../component/applicationDetail/ControlStatusModal';
-import InfoModal from '../../component/applicationDetail/InfoModal';
 import DeleteModal from '../../component/applicationDetail/DeleteModal';
 import StatusModal from '../../component/applicationDetail/StatusModal';
 import UpdateModal from '../../component/applicationDetail/UpdateModal';
-const ApplicationCard = ({
-  apply_id,
+const ApplicationCard: React.FC<ApplicationDetailProps> = ({
+  id,
   name,
   phoneNum,
   device,
@@ -37,13 +34,14 @@ const ApplicationCard = ({
   waybillNumber,
   courier,
   bank,
-  deposit
+  deposit,
+  onUpdate
 }: ApplicationDetailProps) => {
   const [DeleteModalOpen, setDeleteModalOpen] = useState(false);
   const [StatusModalOpen, setStatusModalOpen] = useState(false);
   const [UpdateModalOpen, setUpdateModalOpen] = useState(false);
   const isReceptionStatus = applicationStatus === '접수중';
-  const Apply = applicationStatus === '반환 신청';
+  const Apply = applicationStatus === '반환신청';
   const openDeleteModal = () => {
     setDeleteModalOpen(true);
   };
@@ -66,69 +64,73 @@ const ApplicationCard = ({
     setUpdateModalOpen(false);
   };
   return (
-    <CardContainer>
-      <UpWrapper>
-        <CardInfo>
-          <Title>신청일</Title>
-          <SubTitle>{applyDate}</SubTitle>
-        </CardInfo>
-        <BorderLine> </BorderLine>
-        <CardInfo>
-          <Title>주소</Title>
-          <SubTitle>
-            {roadAddress} {detailAddress}
-          </SubTitle>
-        </CardInfo>
-        <BorderLine> </BorderLine>
-        <CardInfo>
-          <Title>입금자명/입금계좌</Title>
-          <SubTitle>
-            {depositorName} / 농협 333-123456-7891((주)아웃라이언)
-          </SubTitle>
-        </CardInfo>
-        <BorderLine></BorderLine>
-        <CardInfo>
-          <Title>반납일</Title>
-          {returnDate != '' && <SubTitle>{returnDate}</SubTitle>}
-          {returnDate == '' && <SubTitle>배송완료 후 자동 확정</SubTitle>}
-        </CardInfo>
-      </UpWrapper>
-      <UnderWrapper>
-        <StatusButton disabled={!Apply} onClick={openStatusModal}>
-          {applicationStatus}
-        </StatusButton>
-        <InsideWrapper>
-          <DeleteButton disabled={!isReceptionStatus} onClick={openDeleteModal}>
-            취소
-          </DeleteButton>
-          <UpdateButton disabled={!isReceptionStatus} onClick={openUpdateModal}>
-            수정
-          </UpdateButton>
-        </InsideWrapper>
-      </UnderWrapper>
+    <div>
+      <CardContainer>
+        <UpWrapper>
+          <CardInfo>
+            <Title>신청일</Title>
+            <SubTitle>{applyDate}</SubTitle>
+          </CardInfo>
+          <BorderLine> </BorderLine>
+          <CardInfo>
+            <Title>주소</Title>
+            <SubTitle>
+              {roadAddress} {detailAddress}
+            </SubTitle>
+          </CardInfo>
+          <BorderLine> </BorderLine>
+          <CardInfo>
+            <Title>입금자명/입금계좌</Title>
+            <SubTitle>
+              {depositorName} / 농협 333-123456-7891((주)아웃라이언)
+            </SubTitle>
+          </CardInfo>
+          <BorderLine></BorderLine>
+          <CardInfo>
+            <Title>반납일</Title>
+            {returnDate != '' && <SubTitle>{returnDate}</SubTitle>}
+            {returnDate == '' && <SubTitle>배송완료 후 자동 확정</SubTitle>}
+          </CardInfo>
+        </UpWrapper>
+        <UnderWrapper>
+          <StatusButton disabled={!Apply} onClick={openStatusModal}>
+            {applicationStatus}
+          </StatusButton>
+          <InsideWrapper>
+            <DeleteButton
+              disabled={!isReceptionStatus}
+              onClick={openDeleteModal}>
+              취소
+            </DeleteButton>
+            <UpdateButton
+              disabled={!isReceptionStatus}
+              onClick={openUpdateModal}>
+              수정
+            </UpdateButton>
+          </InsideWrapper>
+        </UnderWrapper>
+      </CardContainer>
       {DeleteModalOpen && (
-        <DeleteModal apply_id={apply_id} onClose={closeDeleteModal} />
+        <DeleteModal id={id} onClose={closeDeleteModal} onUpdate={onUpdate} />
       )}
-      {StatusModalOpen && (
-        <StatusModal apply_id={apply_id} onClose={closeStatusModal} />
-      )}
+      {StatusModalOpen && <StatusModal id={id} onClose={closeStatusModal} />}
       {UpdateModalOpen && (
         <UpdateModal
-          apply_id={apply_id}
+          id={id}
           name={name}
           phoneNum={phoneNum}
           device={device}
           applicationReason={applicationReason}
-          email={email}
           certificationFile={certificationFile}
           detailAddress={detailAddress}
           roadAddress={roadAddress}
           depositorName={depositorName}
           isOpen={UpdateModalOpen}
           onClose={closeUpdateModal}
+          onUpdate={onUpdate}
         />
       )}
-    </CardContainer>
+    </div>
   );
 };
 

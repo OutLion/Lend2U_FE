@@ -4,8 +4,6 @@ import {
   ModalContainer,
   ModalContent,
   BasicButton,
-  BasicInput,
-  BasicLabel,
   Title,
   ModalOverlay,
   Border,
@@ -14,17 +12,19 @@ import {
 import SelectStatus from './SelectStatus';
 
 interface AdminRefuseModalProps {
-  apply_id: string;
+  id: number;
   applicationStatus: string;
   isOpen: boolean;
   onClose: () => void;
+  onUpdate: () => void;
 }
 
 const ControlStatusModal: React.FC<AdminRefuseModalProps> = ({
-  apply_id,
+  id,
   applicationStatus,
   isOpen,
-  onClose
+  onClose,
+  onUpdate
 }) => {
   const [status, setStatus] = useState('');
   const handleStatusChange = (newStatus: string | null) => {
@@ -32,13 +32,19 @@ const ControlStatusModal: React.FC<AdminRefuseModalProps> = ({
       setStatus(newStatus);
     }
   };
-  const handleRejectSubmit = () => {
+  const handleStatusSubmit = () => {
+    const token = localStorage.getItem('verificationToken');
+    console.log(token);
     if (status) {
+      const apiUrl = `https://lend2u.site/api/admin/status/${id}/${status}`;
       axios
-        .put(`https://example-api.com/applications/${apply_id}`, {
-          applicationStatus: status
+        .put(apiUrl, null, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
         })
         .then((response) => {
+          onUpdate();
           onClose();
         })
         .catch((error) => {
@@ -46,7 +52,7 @@ const ControlStatusModal: React.FC<AdminRefuseModalProps> = ({
           console.error('Error updating application status:', error);
         });
     }
-    console.log(apply_id, status);
+    console.log(id, status);
     onClose();
   };
 
@@ -61,7 +67,7 @@ const ControlStatusModal: React.FC<AdminRefuseModalProps> = ({
             onChange={handleStatusChange}
           />
           <ButtonWrapper>
-            <BasicButton onClick={handleRejectSubmit}>저장</BasicButton>
+            <BasicButton onClick={handleStatusSubmit}>저장</BasicButton>
             <BasicButton onClick={onClose}>취소</BasicButton>
           </ButtonWrapper>
         </ModalContent>

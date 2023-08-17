@@ -5,7 +5,6 @@ import {
   ModalContent,
   BasicButton,
   BasicInput,
-  BasicLabel,
   Title,
   ModalOverlay,
   ButtonWrapper,
@@ -13,33 +12,41 @@ import {
 } from './ModalStyle';
 
 interface AdminRefuseModalProps {
-  apply_id: string;
+  id: number;
   isOpen: boolean;
   onClose: () => void;
   onConfirm: (rejectReason: string) => void;
+  onUpdate: () => void;
 }
 
 const AdminRefuseModal: React.FC<AdminRefuseModalProps> = ({
-  apply_id,
+  id,
   isOpen,
   onClose,
-  onConfirm
+  onConfirm,
+  onUpdate
 }) => {
   const [rejectReason, setRejectReason] = useState('');
-
+  const storedToken = localStorage.getItem('verificationToken');
   const handleRejectSubmit = () => {
+    const token = localStorage.getItem('verificationToken');
+    console.log(token);
     if (rejectReason) {
+      const apiUrl = `https://lend2u.site/api/admin/refuse/${id}/${rejectReason}`;
       axios
-        .put(`https://example-api.com/applications/${apply_id}`, {
-          applicationStatus: '신청 반려',
-          refuseReason: rejectReason
+        .put(apiUrl, null, {
+          headers: {
+            Authorization: storedToken
+          }
         })
         .then((response) => {
           onConfirm(rejectReason);
+          onUpdate();
           onClose();
         })
         .catch((error) => {
           // 처리 실패 시 에러 핸들링
+          console.log(error.data);
           console.error('Error updating application status:', error);
         });
     }
