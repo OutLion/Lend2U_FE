@@ -42,7 +42,13 @@ import TabletCard from '../../component/Spec/TabletCard';
 import intro from '../../assets/service_intro.svg';
 import img from '../../assets/tablet.svg';
 import axios from 'axios';
+import styled from 'styled-components';
 function Home() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
   const [isCheckboxChecked, setIsCheckboxChecked] = useState(false);
   const [email, setEmail] = useState('');
   const [isEmailVerified, setIsEmailVerified] = useState(false);
@@ -99,7 +105,7 @@ function Home() {
   const handleResendEmail = () => {
     const formData = new FormData();
     formData.append('email', email);
-
+    console.log(email);
     axios
       .post('https://lend2u.site/api/sendCode', formData)
       .then((response) => {
@@ -164,9 +170,9 @@ function Home() {
   const adminEmails = [
     'admin@example.com',
     'anotheradmin@example.com',
-    'mju.outlion@gmail.com'
+    'mju.outlion@gmail.com',
+    'outlion@outlook.kr'
   ];
-
   function isEmailAdmin(email: string): boolean {
     return adminEmails.includes(email);
   }
@@ -208,10 +214,94 @@ function Home() {
               </Agree>
               <Link to={'/application'}>
                 <ApplyButton disabled={!isCheckboxChecked}>
-                  서비스 신청하기
+                  기기 신청하기
                 </ApplyButton>
               </Link>
+              <ApplyButton onClick={() => setIsModalOpen(true)}>
+                신청내역 조회하기
+              </ApplyButton>
             </DownWrapper>
+            {isModalOpen && (
+              <ModalOverlay>
+                <ModalContainer>
+                  <ModalContent>
+                    <NoticeApply>
+                      <Content>
+                        <UnderWrapper>
+                          <BasicInfoText>
+                            이메일
+                            <BasicInfoAsterisk>*</BasicInfoAsterisk>
+                          </BasicInfoText>
+                          <BasicInput
+                            name='email'
+                            type='text'
+                            placeholder={
+                              isEmailEmpty
+                                ? '이메일을 먼저 입력해주세요'
+                                : '이메일을 입력하세요'
+                            }
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            style={{ borderColor: isEmailEmpty ? 'red' : '' }}
+                          />
+                        </UnderWrapper>
+                        <CheckWrapper>
+                          {isEmailVerified ? (
+                            <>
+                              <CodeInput
+                                name='verificationCode'
+                                type='text'
+                                placeholder='인증번호'
+                                value={verificationCode}
+                                onChange={(e) =>
+                                  setVerificationCode(e.target.value)
+                                }
+                                style={{
+                                  borderColor: isCodeInvalid ? 'red' : ''
+                                }}
+                              />
+                              <Time>{formatTime(countdown)}</Time>
+                              <IsCorrectbutton onClick={handleVerify}>
+                                {verificationButtonText}
+                              </IsCorrectbutton>
+                              <Resendbutton onClick={handleResendEmail}>
+                                재전송
+                              </Resendbutton>
+                            </>
+                          ) : (
+                            <>
+                              <EmailCheckButton
+                                onClick={handleEmailVerification}
+                                disabled={isEmailVerified}>
+                                코드 발송
+                              </EmailCheckButton>
+                            </>
+                          )}
+                        </CheckWrapper>
+                      </Content>
+                    </NoticeApply>
+                    <ButtonWrapper>
+                      <div>
+                        {isVerificationCompleted && isEmailAdmin(email) ? (
+                          <Link to={'/admin'}>
+                            <CheckButton disabled={!isVerificationCompleted}>
+                              관리자 페이지
+                            </CheckButton>
+                          </Link>
+                        ) : (
+                          <Link to={'/applicationhistory'}>
+                            <CheckButton disabled={!isVerificationCompleted}>
+                              신청내역 조회
+                            </CheckButton>
+                          </Link>
+                        )}
+                      </div>
+                      <CheckButton onClick={handleCloseModal}>닫기</CheckButton>
+                    </ButtonWrapper>
+                  </ModalContent>
+                </ModalContainer>
+              </ModalOverlay>
+            )}
           </Section>
         </Element>
         <Element name='device-specs'>
@@ -237,80 +327,6 @@ function Home() {
             </CardList>
           </Section>
         </Element>
-        <Element name='application-history'>
-          <Section>
-            <Title>신청 내역 조회</Title>
-            <BorderLine />
-            <SecondWrapper>
-              <NoticeApply>
-                <Content>
-                  <UnderWrapper>
-                    <BasicInfoText>
-                      이메일
-                      <BasicInfoAsterisk>*</BasicInfoAsterisk>
-                    </BasicInfoText>
-                    <BasicInput
-                      name='email'
-                      type='text'
-                      placeholder={
-                        isEmailEmpty
-                          ? '이메일을 먼저 입력해주세요'
-                          : '이메일을 입력하세요'
-                      }
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      style={{ borderColor: isEmailEmpty ? 'red' : '' }}
-                    />
-                  </UnderWrapper>
-                  <CheckWrapper>
-                    {isEmailVerified ? (
-                      <>
-                        <CodeInput
-                          name='verificationCode'
-                          type='text'
-                          placeholder='인증번호'
-                          value={verificationCode}
-                          onChange={(e) => setVerificationCode(e.target.value)}
-                          style={{ borderColor: isCodeInvalid ? 'red' : '' }} // border 색 추가
-                        />
-                        <Time>{formatTime(countdown)}</Time>
-                        <IsCorrectbutton onClick={handleVerify}>
-                          {verificationButtonText}
-                        </IsCorrectbutton>
-                        <Resendbutton onClick={handleResendEmail}>
-                          재전송
-                        </Resendbutton>
-                      </>
-                    ) : (
-                      <>
-                        <EmailCheckButton
-                          onClick={handleEmailVerification}
-                          disabled={isEmailVerified}>
-                          인증하기
-                        </EmailCheckButton>
-                      </>
-                    )}
-                  </CheckWrapper>
-                </Content>
-              </NoticeApply>
-              <div>
-                {isVerificationCompleted && isEmailAdmin(email) ? (
-                  <Link to={'/admin'}>
-                    <CheckButton disabled={!isVerificationCompleted}>
-                      관리자 페이지
-                    </CheckButton>
-                  </Link>
-                ) : (
-                  <Link to={'/applicationhistory'}>
-                    <CheckButton disabled={!isVerificationCompleted}>
-                      신청내역 조회
-                    </CheckButton>
-                  </Link>
-                )}
-              </div>
-            </SecondWrapper>
-          </Section>
-        </Element>
       </HomePage>
       <Footer />
     </div>
@@ -318,3 +334,37 @@ function Home() {
 }
 
 export default Home;
+
+const ModalContainer = styled.div`
+  width: 791px;
+  height: 336px;
+  border-radius: 10px;
+  background: #fff;
+  box-shadow: 0px 4px 20px 10px rgba(0, 0, 0, 0.05);
+  margin-top: 30px;
+`;
+const ButtonWrapper = styled.div`
+  display: flex;
+  justify-content: flex-start;
+  margin-left: 200px;
+`;
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+`;
+
+const ModalContent = styled.div`
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  width: 80%;
+  max-width: 600px;
+`;

@@ -14,7 +14,7 @@ const Header = () => {
         <HeaderLeft>
           <li>
             <NavLink to='/' onClick={scrollToTop}>
-              로고
+              <StyledImg src={logo} />
             </NavLink>
           </li>
         </HeaderLeft>
@@ -25,17 +25,18 @@ const Header = () => {
           <ScrollLink to='device-specs' smooth={true} duration={500}>
             <ScrollIndex>기기 스펙 조회</ScrollIndex>
           </ScrollLink>
-          <ScrollLink to='application-history' smooth={true} duration={500}>
-            <ScrollIndex>신청 내역 조회</ScrollIndex>
-          </ScrollLink>
         </HeaderLink>
       </HeaderUl>
-      <BorderLine />
     </HeaderWrapper>
   );
 };
 
 export default Header;
+
+const StyledImg = styled.img`
+  width: 218.2px;
+  height: 48px;
+`;
 
 const HeaderWrapper = styled.div`
   a:link,
@@ -47,14 +48,11 @@ const HeaderWrapper = styled.div`
   width: 100%;
   height: 5rem;
   display: flex;
+  border-bottom: 1px solid #dbdbdf;
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  background: linear-gradient(
-    180deg,
-    #f1f3ff 1.03%,
-    rgba(127, 138, 242, 0) 100%
-  );
+  background: #ffffff;
   z-index: 1000;
   position: fixed;
   top: 0;
@@ -98,8 +96,8 @@ const ScrollIndex = styled.div`
 const BorderLine = styled.hr`
   stroke-width: 2px;
   width: 1200px;
-  color: #dbdbdf;
+  color: #fff;
   border: none;
   border-top: 1px solid #dbdbdf;
-  margin-top: 15px;
+  margin-top: 10px;
 `;

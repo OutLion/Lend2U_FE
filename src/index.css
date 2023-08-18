@@ -104,6 +104,6 @@ body {
   height: 100%;
   margin: 0;
   padding: 0; /* Hide overflow to prevent scrolling */
-  background: linear-gradient(180deg, #D6DCFF 1.03%, rgba(127, 138, 242, 0.00) 100%);
+  background: rgba(241, 243, 255, 1);
   background-repeat: no-repeat;
 }

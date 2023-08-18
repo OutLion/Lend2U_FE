@@ -3,7 +3,7 @@ import styled from 'styled-components';
 export const ModalContainer = styled.div`
   margin-left: 1200px;
   position: absolute;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -90%);
   width: 400px;
   height: 370px;
   background: #fff;
@@ -17,7 +17,7 @@ export const ModalContainer2 = styled.div`
   position: absolute;
   top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -90%);
   width: 400px;
   height: 430px;
   background: #fff;
@@ -30,7 +30,7 @@ export const ModalContainer2 = styled.div`
 export const ModalContainer3 = styled.div`
   margin-left: 1200px;
   position: absolute;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -90%);
   width: 400px;
   height: 270px;
   background: #fff;
@@ -39,6 +39,21 @@ export const ModalContainer3 = styled.div`
   z-index: 1000;
   border: 1px solid #dbdbdf;
   overflow-y: auto;
+`;
+export const ModalContainer5 = styled.div`
+  margin-left: 1200px;
+  position: absolute;
+  transform: translate(-52%, 60%);
+  width: 1160px;
+  height: 340px;
+  background: #fff;
+  border-radius: 20px;
+  box-shadow: 0px 4px 20px 10px rgba(0, 0, 0, 0.05);
+  z-index: 1000;
+  border: 1px solid #dbdbdf;
+  overflow-y: auto;
+  display: flex;
+  align-items: center;
 `;
 export const ModalContent = styled.div`
   float: left;

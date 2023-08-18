@@ -17,6 +17,8 @@ import DeleteModal from '../../component/applicationDetail/DeleteModal';
 import StatusModal from '../../component/applicationDetail/StatusModal';
 import UpdateModal from '../../component/applicationDetail/UpdateModal';
 import RefuseInfoModal from '../../component/applicationDetail/RefuseInfoModal';
+import axios from 'axios';
+import styled from 'styled-components';
 const ApplicationCard: React.FC<ApplicationDetailProps> = ({
   id,
   name,
@@ -74,6 +76,34 @@ const ApplicationCard: React.FC<ApplicationDetailProps> = ({
   const closeRefuseInfoModal = () => {
     setRefuseInfoModalOpen(false);
   };
+  const handleCertificationDownload = () => {
+    if (certificationFile) {
+      const token = localStorage.getItem('verificationToken');
+      console.log(token);
+      // Assuming certificationFile contains the file ID or filename
+      axios({
+        url: `https://lend2u.site/api/download/${id}`,
+        method: 'GET',
+        responseType: 'blob',
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+        .then((response) => {
+          const blob = new Blob([response.data], {
+            type: response.headers['content-type']
+          });
+          const blobUrl = URL.createObjectURL(blob);
+
+          window.open(blobUrl, '_blank');
+
+          URL.revokeObjectURL(blobUrl);
+        })
+        .catch((error) => {
+          console.error('Error downloading certification file:', error);
+        });
+    }
+  };
   return (
     <div>
       <CardContainer>
@@ -110,6 +140,9 @@ const ApplicationCard: React.FC<ApplicationDetailProps> = ({
             onClick={isRefuse ? openRefuseInfoModal : openStatusModal}>
             {applicationStatus}
           </StatusButton>
+          <DownButton onClick={handleCertificationDownload}>
+            증명서 조회
+          </DownButton>
           <InsideWrapper>
             <DeleteButton
               disabled={!isReceptionStatus}
@@ -155,3 +188,35 @@ const ApplicationCard: React.FC<ApplicationDetailProps> = ({
 };
 
 export default ApplicationCard;
+
+const DownButton = styled.button`
+  font-family: 'GmarketSansMedium';
+  width: 170px;
+  height: 38px;
+  margin-right: 5px;
+  margin-top: 7px;
+  border: 1px solid #a6c8ff;
+  border-radius: 15px;
+  background: #428aff;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 14px;
+  font-style: normal;
+  font-weight: 500;
+  line-height: 38px;
+  letter-spacing: -1px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #0461e5;
+  }
+
+  &:disabled {
+    border: 1px solid #a6c8ff;
+    background: #8fbaff;
+    cursor: not-allowed;
+  }
+
+  &:disabled:hover {
+    background-color: #8fbaff;
+  }
+`;

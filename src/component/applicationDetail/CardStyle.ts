@@ -68,9 +68,8 @@ export const BorderLine = styled.div`
 export const StatusButton = styled.button`
   font-family: 'GmarketSansMedium';
   width: 170px;
-  height: 57px;
+  height: 54p x;
   margin-right: 5px;
-  margin-top: 12px;
   border: 0px solid #a6c8ff;
   border-radius: 15px;
   background: #83b2ff;
@@ -126,9 +125,9 @@ export const RefuseButton = styled.button`
 export const DeleteButton = styled.button`
   font-family: 'GmarketSansBold';
   width: 130px;
-  height: 48px;
+  height: 43px;
   margin-right: 5px;
-  margin-top: 10px;
+  margin-top: 7px;
   border: 1px solid #a6c8ff;
   border-radius: 15px;
   background-color: #0461e5;
@@ -136,7 +135,7 @@ export const DeleteButton = styled.button`
   font-size: 14px;
   font-style: normal;
   font-weight: 500;
-  line-height: 48px;
+  line-height: 42px;
   cursor: pointer;
 
   &:hover {
@@ -152,9 +151,9 @@ export const DeleteButton = styled.button`
 export const UpdateButton = styled.button`
   font-family: 'GmarketSansBold';
   width: 130px;
-  height: 48px;
+  height: 43px;
   margin-right: 10px;
-  margin-top: 10px;
+  margin-top: 7px;
   border: 1px solid #a6c8ff;
   border-radius: 15px;
   background-color: #0461e5;
@@ -162,7 +161,7 @@ export const UpdateButton = styled.button`
   font-size: 15px;
   font-style: normal;
   font-weight: 500;
-  line-height: 48px;
+  line-height: 42px;
   cursor: pointer;
 
   &:hover {

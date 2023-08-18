@@ -3,17 +3,17 @@ import styled from 'styled-components';
 export const NoticeApply = styled.div`
   display: flex;
   justify-content: flex-start;
-  width: 840px;
+  width: 640px;
   height: 135px;
   text-align: center;
   padding: 1px 1px 1px 0px;
   align-items: center;
   flex-shrink: 0;
   border-radius: 16px;
-  border: 1px solid #dfdfdf;
   background: #fff;
   margin-left: 10px;
-  margin-right: 20px;
+  margin-right: 0px;
+  margin-top: 20px;
 `;
 
 export const UpWrapper = styled.div`
@@ -182,7 +182,6 @@ export const ServiceIntro = styled.div`
 `;
 
 export const HomePage = styled.div`
-  margin-top: 100px;
   margin-bottom: 200px;
   display: flex;
   flex-direction: column;
@@ -192,7 +191,7 @@ export const HomePage = styled.div`
 
 export const Section = styled.div`
   margin-top: 100px;
-  margin-bottom: 800px;
+  margin-bottom: 400px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -287,7 +286,7 @@ export const AgreeContent = styled.div`
 export const DownWrapper = styled.div`
   display: flex;
   justify-content: flex-start;
-  margin-left: 710px;
+  margin-left: 510px;
   margin-top: 20px;
 `;
 
@@ -384,18 +383,18 @@ export const SecondWrapper = styled.div`
 `;
 export const CheckButton = styled.button`
   font-family: 'GmarketSansMedium';
-  width: 270px;
-  height: 135px;
-  margin-right: 10px;
+  width: 170px;
+  height: 75px;
+  margin-right: 30px;
   border: 1px solid #a6c8ff;
   border-radius: 15px;
   background: #428aff;
   color: rgba(255, 255, 255, 1);
-  font-size: 28px;
+  font-size: 20px;
   font-style: normal;
   font-weight: 500;
-  line-height: 48px;
-  letter-spacing: -2px;
+  line-height: 75px;
+  letter-spacing: -1px;
   cursor: pointer;
 
   &:hover {
