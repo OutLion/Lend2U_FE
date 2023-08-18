@@ -65,7 +65,7 @@ function Home() {
       setIsEmailEmpty(true);
       return;
     }
-
+    alert('코드를 발송했습니다. 메일을 확인해주세요');
     const formData = new FormData();
     formData.append('email', email);
 
@@ -142,12 +142,14 @@ function Home() {
           setIsVerificationCompleted(true);
           setIsCodeInvalid(false);
           setVerificationButtonText('인증완료');
+          alert('인증되었습니다.');
         } else {
           // HTTP 상태 코드가 200이 아닌 경우 처리 (실패)
           console.log('Email verification failed:', response);
           setIsVerificationCompleted(false);
           setIsCodeInvalid(true);
           setVerificationButtonText('재입력');
+          alert('코드가 다릅니다. 재전송 후 다시 확인해주세요');
         }
       })
       .catch((error) => {
